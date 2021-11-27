@@ -4,17 +4,15 @@ import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/contro
 let camera, scene, renderer;
 let plane;
 
-let pointer,
-  raycaster,
-  isShiftDown = false;
+let pointer, raycaster, position;
 
-let rollOverMesh, rollOverMaterial;
+let rollOverMesh1, rollOverMaterial1;
+let redMat, redMatmaterial;
 let cubeGeo, cubeMaterial;
 
 const objects = [];
 
 init();
-// render();
 
 function init() {
   camera = new THREE.PerspectiveCamera(
@@ -31,14 +29,24 @@ function init() {
 
   // roll-over helpers
 
-  const rollOverGeo = new THREE.PlaneGeometry(50, 50);
-  rollOverGeo.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  rollOverGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
-  rollOverMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
+  const rollOverGeo1 = new THREE.PlaneGeometry(50, 50);
+  rollOverGeo1.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  rollOverGeo1.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  rollOverMaterial1 = new THREE.MeshBasicMaterial({
+    color: 0x1ed760,
   });
-  rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-  scene.add(rollOverMesh);
+  rollOverMesh1 = new THREE.Mesh(rollOverGeo1, rollOverMaterial1);
+  scene.add(rollOverMesh1);
+
+  // mats
+  redMat = new THREE.PlaneGeometry(50, 50);
+  redMat.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  redMat.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  redMatmaterial = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    opacity: 0.9,
+    transparent: true,
+  });
 
   // cubes
 
@@ -53,8 +61,7 @@ function init() {
   // grid
 
   const gridHelper = new THREE.GridHelper(2000, 40, "red", 0x555555);
-  console.log(gridHelper);
-  scene.add(gridHelper);
+  // scene.add(gridHelper);
 
   let cubeGeo2 = new THREE.BoxGeometry(50, 12.5, 50);
   cubeGeo2.applyMatrix(new THREE.Matrix4().makeTranslation(0, -12.5, 0));
@@ -92,49 +99,37 @@ function init() {
     }
   });
   scene.add(board);
-
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
-
   const geometry = new THREE.PlaneGeometry(2000, 2000);
   geometry.rotateX(-Math.PI / 2);
-
   plane = new THREE.Mesh(
     geometry,
     new THREE.MeshBasicMaterial({ visible: false })
   );
   scene.add(plane);
-
   objects.push(plane);
 
   // lights
-
   const ambientLight = new THREE.AmbientLight(0x606060);
   scene.add(ambientLight);
-
   const directionalLight = new THREE.DirectionalLight(0xffffff);
   directionalLight.position.set(1, 0.75, 0.5).normalize();
   scene.add(directionalLight);
-
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
-
   document.addEventListener("pointermove", onPointerMove);
-  document.addEventListener("pointerdown", onPointerDown);
+  document.addEventListener("keydown", onPointerDown);
   document.addEventListener("keydown", onDocumentKeyDown);
-  document.addEventListener("keyup", onDocumentKeyUp);
-
   window.addEventListener("resize", onWindowResize);
 }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize(window.innerWidth, window.innerHeight);
-
   render();
 }
 
@@ -143,15 +138,14 @@ function onPointerMove(event) {
     (event.clientX / window.innerWidth) * 2 - 1,
     -(event.clientY / window.innerHeight) * 2 + 1
   );
-
   raycaster.setFromCamera(pointer, camera);
 
   const intersects = raycaster.intersectObjects(objects, false);
 
   if (intersects.length > 0) {
     const intersect = intersects[0];
-    rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-    rollOverMesh.position
+    rollOverMesh1.position.copy(intersect.point).add(intersect.face.normal);
+    rollOverMesh1.position
       .divideScalar(50)
       .floor()
       .multiplyScalar(50)
@@ -162,60 +156,51 @@ function onPointerMove(event) {
 }
 
 function onPointerDown(event) {
-  pointer.set(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
-
-  raycaster.setFromCamera(pointer, camera);
-
-  const intersects = raycaster.intersectObjects(objects, false);
-
-  if (intersects.length > 0) {
-    const intersect = intersects[0];
-
-    // delete cube
-    if (isShiftDown) {
-      if (intersect.object !== plane) {
-        scene.remove(intersect.object);
-        objects.splice(objects.indexOf(intersect.object), 1);
-      }
-
-      // create cube
-    } else {
+  // if event is x
+  if (event.key == "x") {
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObjects(objects, false);
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
       // stop stacking
       if (intersect.object === plane) {
-        const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
-        cube.position.copy(intersect.point).add(intersect.face.normal);
-        cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-        cube.updateMatrix();
-        plane.geometry.merge(cube.geometry, cube.matrix);
-        objects.push(cube);
-        scene.add(cube);
+        // const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
+        // cube.position.copy(intersect.point).add(intersect.face.normal);
+        // cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
+        // cube.updateMatrix();
+        // plane.geometry.merge(cube.geometry, cube.matrix);
+        // objects.push(cube);
+        // scene.add(cube);
+        const mat = new THREE.Mesh(redMat, redMatmaterial);
+        mat.position.copy(intersect.point).add(intersect.face.normal);
+        mat.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
+        mat.updateMatrix();
+        plane.geometry.merge(mat.geometry, mat.matrix);
+        objects.push(mat);
+        scene.add(mat);
       }
       // const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
       // voxel.position.copy(intersect.point).add(intersect.face.normal);
       // voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
       // scene.add(voxel);
       // objects.push(voxel);
+
+      render();
     }
-    render();
   }
 }
 
 function onDocumentKeyDown(event) {
   switch (event.keyCode) {
-    case 16:
-      isShiftDown = true;
-      break;
-  }
-}
-
-function onDocumentKeyUp(event) {
-  switch (event.keyCode) {
-    case 16:
-      isShiftDown = false;
-      break;
+    // backspace
+    case 8:
+      if (objects.length > 1) {
+        scene.remove(objects[objects.length - 1]);
+        objects.pop();
+        render();
+      } else {
+        console.log("No Mats to remove");
+      }
   }
 }
 
