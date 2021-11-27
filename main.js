@@ -23,7 +23,7 @@ function init() {
     1,
     10000
   );
-  camera.position.set(500, 800, 1300);
+  camera.position.set(500, 900, 1300);
   camera.lookAt(0, 0, 0);
 
   scene = new THREE.Scene();
@@ -31,27 +31,29 @@ function init() {
 
   // roll-over helpers
 
-  const rollOverGeo = new THREE.BoxGeometry(50, 50, 50);
+  const rollOverGeo = new THREE.PlaneGeometry(50, 50);
+  rollOverGeo.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  rollOverGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
   rollOverMaterial = new THREE.MeshBasicMaterial({
-    color: 0xf0cc00,
-    opacity: 0.5,
-    transparent: true,
+    color: 0xff0000,
   });
   rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
   scene.add(rollOverMesh);
 
   // cubes
 
-  cubeGeo = new THREE.BoxGeometry(50, 50, 50);
-  // make a plane geometry
-  const planeGeo = new THREE.PlaneGeometry(1000, 1000, 10, 10);
+  cubeGeo = new THREE.BoxGeometry(50, 10, 50);
+  cubeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
   cubeMaterial = new THREE.MeshLambertMaterial({
-    color: 0xfeb74c,
+    color: 0xe6ff3e,
+    opacity: 0.5,
+    transparent: true,
   });
 
   // grid
 
-  const gridHelper = new THREE.GridHelper(1000, 20);
+  const gridHelper = new THREE.GridHelper(2000, 40, "red");
+  console.log(gridHelper);
   scene.add(gridHelper);
 
   //
@@ -141,22 +143,29 @@ function onPointerDown(event) {
     const intersect = intersects[0];
 
     // delete cube
-
     if (isShiftDown) {
       if (intersect.object !== plane) {
         scene.remove(intersect.object);
-
         objects.splice(objects.indexOf(intersect.object), 1);
       }
 
       // create cube
     } else {
-      const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
-      voxel.position.copy(intersect.point).add(intersect.face.normal);
-      voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-      scene.add(voxel);
-
-      objects.push(voxel);
+      // stop stacking
+      if (intersect.object === plane) {
+        const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
+        cube.position.copy(intersect.point).add(intersect.face.normal);
+        cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
+        cube.updateMatrix();
+        plane.geometry.merge(cube.geometry, cube.matrix);
+        objects.push(cube);
+        scene.add(cube);
+      }
+      // const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
+      // voxel.position.copy(intersect.point).add(intersect.face.normal);
+      // voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
+      // scene.add(voxel);
+      // objects.push(voxel);
     }
 
     render();
