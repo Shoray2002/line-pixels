@@ -61,7 +61,7 @@ function init() {
   let lightMaterial = new THREE.MeshLambertMaterial({
     color: 0xf68968,
   });
-  let blackMaterial = new THREE.MeshLambertMaterial({
+  let darkMaterial = new THREE.MeshLambertMaterial({
     color: 0x8e88b3,
   });
   let board = new THREE.Group();
@@ -71,12 +71,12 @@ function init() {
         var cube;
         cube = new THREE.Mesh(
           cubeGeo,
-          i % 2 == 0 ? lightMaterial : blackMaterial
+          i % 2 == 0 ? lightMaterial : darkMaterial
         );
       } else {
         cube = new THREE.Mesh(
           cubeGeo,
-          i % 2 == 0 ? blackMaterial : lightMaterial
+          i % 2 == 0 ? darkMaterial : lightMaterial
         );
       }
       cube.position.set(i * 50, 0, j * 50);
@@ -96,7 +96,7 @@ function init() {
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
 
-  const geometry = new THREE.PlaneGeometry(1000, 1000);
+  const geometry = new THREE.PlaneGeometry(2000, 2000);
   geometry.rotateX(-Math.PI / 2);
 
   plane = new THREE.Mesh(
