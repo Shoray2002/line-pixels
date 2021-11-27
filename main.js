@@ -14,20 +14,20 @@ let cubeGeo, cubeMaterial;
 const objects = [];
 
 init();
-render();
+// render();
 
 function init() {
   camera = new THREE.PerspectiveCamera(
     15,
     window.innerWidth / window.innerHeight,
     1,
-    10000
+    100000
   );
   camera.position.set(500, 900, 1300);
   camera.lookAt(0, 0, 0);
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
+  scene.background = new THREE.Color(0x8e88b3);
 
   // roll-over helpers
 
@@ -42,21 +42,56 @@ function init() {
 
   // cubes
 
-  cubeGeo = new THREE.BoxGeometry(50, 10, 50);
+  cubeGeo = new THREE.BoxGeometry(50, 12.5, 50);
   cubeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
   cubeMaterial = new THREE.MeshLambertMaterial({
     color: 0xe6ff3e,
-    opacity: 0.5,
+    opacity: 0.8,
     transparent: true,
   });
 
   // grid
 
-  const gridHelper = new THREE.GridHelper(2000, 40, "red");
+  const gridHelper = new THREE.GridHelper(2000, 40, "red", 0x555555);
   console.log(gridHelper);
   scene.add(gridHelper);
 
-  //
+  let cubeGeo2 = new THREE.BoxGeometry(50, 12.5, 50);
+  cubeGeo2.applyMatrix(new THREE.Matrix4().makeTranslation(0, -12.5, 0));
+  let lightMaterial = new THREE.MeshLambertMaterial({
+    color: 0xf68968,
+  });
+  let blackMaterial = new THREE.MeshLambertMaterial({
+    color: 0x8e88b3,
+  });
+  let board = new THREE.Group();
+  for (let i = -20; i < 20; i++) {
+    for (let j = -20; j < 20; j++) {
+      if (j % 2 == 0) {
+        var cube;
+        cube = new THREE.Mesh(
+          cubeGeo,
+          i % 2 == 0 ? lightMaterial : blackMaterial
+        );
+      } else {
+        cube = new THREE.Mesh(
+          cubeGeo,
+          i % 2 == 0 ? blackMaterial : lightMaterial
+        );
+      }
+      cube.position.set(i * 50, 0, j * 50);
+      board.add(cube);
+    }
+  }
+  board.position.set(25, 12.5, 25);
+  // make the board translucent
+  board.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.material.transparent = true;
+      child.material.opacity = 0.99;
+    }
+  });
+  scene.add(board);
 
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
@@ -91,8 +126,6 @@ function init() {
   document.addEventListener("keydown", onDocumentKeyDown);
   document.addEventListener("keyup", onDocumentKeyUp);
 
-  //
-
   window.addEventListener("resize", onWindowResize);
 }
 
@@ -117,7 +150,6 @@ function onPointerMove(event) {
 
   if (intersects.length > 0) {
     const intersect = intersects[0];
-
     rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
     rollOverMesh.position
       .divideScalar(50)
@@ -167,7 +199,6 @@ function onPointerDown(event) {
       // scene.add(voxel);
       // objects.push(voxel);
     }
-
     render();
   }
 }
@@ -189,7 +220,30 @@ function onDocumentKeyUp(event) {
 }
 
 function render() {
-  // const controls = new OrbitControls(camera, renderer.domElement);
-  // controls.update();
   renderer.render(scene, camera);
 }
+
+window.addEventListener("wheel", (event) => {
+  if (event.deltaY < 0) {
+    camera.fov -= 2;
+  } else {
+    camera.fov += 2;
+  }
+  camera.updateProjectionMatrix();
+  render();
+});
+
+function animate() {
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 1;
+  controls.enableZoom = false;
+  controls.enableRotate = false;
+  controls.panSpeed = 0.1;
+  // controls.enablePan = false;
+  controls.update();
+  requestAnimationFrame(animate);
+  render();
+}
+
+animate();
