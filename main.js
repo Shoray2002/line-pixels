@@ -9,7 +9,7 @@ let pointer, raycaster, position;
 let rollOverMesh1, rollOverMaterial1;
 let redMat, redMatmaterial;
 let cubeGeo, cubeMaterial;
-
+let index = 0;
 const objects = [];
 
 init();
@@ -41,7 +41,7 @@ function init() {
   // mats
   redMat = new THREE.PlaneGeometry(50, 50);
   redMat.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  redMat.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  redMat.applyMatrix(new THREE.Matrix4().makeTranslation(0, -24, 0));
   redMatmaterial = new THREE.MeshBasicMaterial({
     color: 0xff0000,
     opacity: 0.9,
@@ -62,6 +62,22 @@ function init() {
 
   const gridHelper = new THREE.GridHelper(2000, 40, "red", 0x555555);
   // scene.add(gridHelper);
+  // draw line from origin to edge of grid
+  const points1 = [];
+  points1.push(new THREE.Vector3(-25, 0, 25));
+  points1.push(new THREE.Vector3(1025, 0, 25));
+  const lineGeo = new THREE.BufferGeometry().setFromPoints(points1);
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
+  const line = new THREE.Line(lineGeo, lineMat);
+  const points2 = [];
+  points2.push(new THREE.Vector3(-25, 0, 25));
+  points2.push(new THREE.Vector3(-25, 0, -1025));
+  const lineGeo2 = new THREE.BufferGeometry().setFromPoints(points2);
+  const lineMat2 = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const line2 = new THREE.Line(lineGeo2, lineMat2);
+
+  scene.add(line);
+  scene.add(line2);
 
   let cubeGeo2 = new THREE.BoxGeometry(50, 12.5, 50);
   cubeGeo2.applyMatrix(new THREE.Matrix4().makeTranslation(0, -12.5, 0));
@@ -72,6 +88,7 @@ function init() {
     color: 0x8e88b3,
   });
   let board = new THREE.Group();
+
   for (let i = -20; i < 20; i++) {
     for (let j = -20; j < 20; j++) {
       if (j % 2 == 0) {
@@ -96,9 +113,12 @@ function init() {
     if (child instanceof THREE.Mesh) {
       child.material.transparent = true;
       child.material.opacity = 0.99;
+      child.userData.index = index;
+      index++;
     }
   });
   scene.add(board);
+
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
   const geometry = new THREE.PlaneGeometry(2000, 2000);
@@ -121,7 +141,7 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
   document.addEventListener("pointermove", onPointerMove);
-  document.addEventListener("keydown", onPointerDown);
+  document.addEventListener("keydown", onXDown);
   document.addEventListener("keydown", onDocumentKeyDown);
   window.addEventListener("resize", onWindowResize);
 }
@@ -151,11 +171,17 @@ function onPointerMove(event) {
       .multiplyScalar(50)
       .addScalar(25);
   }
+  // console log the index of the cube under the pointer
+  // const intersects2 = raycaster.intersectObjects(objects, true);
+  // if (intersects2.length > 0) {
+  //   const intersect = intersects2[0];
+  //   console.log(intersect.object.userData.index);
+  // }
 
   render();
 }
 
-function onPointerDown(event) {
+function onXDown(event) {
   // if event is x
   if (event.key == "x") {
     raycaster.setFromCamera(pointer, camera);
