@@ -216,15 +216,17 @@ function onXDown(event) {
       }
 
       if (marked.length >= 2) {
-        // let result = lineMP(
-        //   marked[marked.length - 2],
-        //   marked[marked.length - 1]
-        // );
+        let result = lineMP(
+          marked[marked.length - 2],
+          marked[marked.length - 1]
+        );
+        
+
         marked.pop();
         marked.pop();
-        console.log(result);
         for (let i = 0; i < result.length; i++) {
           const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
+
           cube.position.set(
             result[i].x * 50 + 25,
             25,
