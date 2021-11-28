@@ -64,14 +64,14 @@ function init() {
   // scene.add(gridHelper);
   // draw line from origin to edge of grid
   const points1 = [];
-  points1.push(new THREE.Vector3(-25, 0, 25));
-  points1.push(new THREE.Vector3(1025, 0, 25));
+  points1.push(new THREE.Vector3(25, 0, 25));
+  points1.push(new THREE.Vector3(1050, 0, 25));
   const lineGeo = new THREE.BufferGeometry().setFromPoints(points1);
   const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
   const line = new THREE.Line(lineGeo, lineMat);
   const points2 = [];
-  points2.push(new THREE.Vector3(-25, 0, 25));
-  points2.push(new THREE.Vector3(-25, 0, -1025));
+  points2.push(new THREE.Vector3(25, 0, 25));
+  points2.push(new THREE.Vector3(25, 0, -1000));
   const lineGeo2 = new THREE.BufferGeometry().setFromPoints(points2);
   const lineMat2 = new THREE.LineBasicMaterial({ color: 0xff0000 });
   const line2 = new THREE.Line(lineGeo2, lineMat2);
@@ -89,8 +89,8 @@ function init() {
   });
   let board = new THREE.Group();
 
-  for (let i = -20; i < 20; i++) {
-    for (let j = -20; j < 20; j++) {
+  for (let i = -20; i <= 20; i++) {
+    for (let j = -20; j <= 20; j++) {
       if (j % 2 == 0) {
         var cube;
         cube = new THREE.Mesh(
@@ -103,7 +103,12 @@ function init() {
           i % 2 == 0 ? darkMaterial : lightMaterial
         );
       }
+      if ((i == j || i == -j) && i != 0) {
+        var cube = new THREE.Mesh(cubeGeo, redMatmaterial);
+      }
       cube.position.set(i * 50, 0, j * 50);
+      console.log(cube.position);
+
       board.add(cube);
     }
   }
@@ -113,8 +118,6 @@ function init() {
     if (child instanceof THREE.Mesh) {
       child.material.transparent = true;
       child.material.opacity = 0.99;
-      child.userData.index = index;
-      index++;
     }
   });
   scene.add(board);
@@ -172,9 +175,9 @@ function onPointerMove(event) {
       .addScalar(25);
   }
   // console log the index of the cube under the pointer
-  // const intersects2 = raycaster.intersectObjects(objects, true);
+  // const intersects2 = raycaster.intersectObjects(objects, false);
   // if (intersects2.length > 0) {
-  //   const intersect = intersects2[0];
+  //   const intersect = intersects2[1];
   //   console.log(intersect.object.userData.index);
   // }
 
