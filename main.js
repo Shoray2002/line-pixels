@@ -9,8 +9,9 @@ let pointer, raycaster, position;
 let rollOverMesh1, rollOverMaterial1;
 let redMat, redMatmaterial;
 let cubeGeo, cubeMaterial;
-let index = 0;
 const objects = [];
+// a dictionary of all the marked points
+const marked = [];
 
 init();
 
@@ -103,12 +104,10 @@ function init() {
           i % 2 == 0 ? darkMaterial : lightMaterial
         );
       }
-      if ((i == j || i == -j) && i != 0) {
-        var cube = new THREE.Mesh(cubeGeo, redMatmaterial);
-      }
+      // if ((i == j || i == -j) && i != 0) {
+      //   var cube = new THREE.Mesh(cubeGeo, redMatmaterial);
+      // }
       cube.position.set(i * 50, 0, j * 50);
-      console.log(cube.position);
-
       board.add(cube);
     }
   }
@@ -173,14 +172,11 @@ function onPointerMove(event) {
       .floor()
       .multiplyScalar(50)
       .addScalar(25);
+    // console.log(
+    //   (rollOverMesh1.position.x - 25) / 50,
+    //   Math.abs((rollOverMesh1.position.z - 25) / 50)
+    // );
   }
-  // console log the index of the cube under the pointer
-  // const intersects2 = raycaster.intersectObjects(objects, false);
-  // if (intersects2.length > 0) {
-  //   const intersect = intersects2[1];
-  //   console.log(intersect.object.userData.index);
-  // }
-
   render();
 }
 
@@ -205,15 +201,19 @@ function onXDown(event) {
         mat.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
         mat.updateMatrix();
         plane.geometry.merge(mat.geometry, mat.matrix);
+        marked.push([
+          (mat.position.x - 25) / 50,
+          Math.abs((mat.position.z - 25) / 50),
+        ]);
+        console.log(
+          "Marked: " +
+            marked[marked.length - 1][0] +
+            "," +
+            marked[marked.length - 1][1]
+        );
         objects.push(mat);
         scene.add(mat);
       }
-      // const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
-      // voxel.position.copy(intersect.point).add(intersect.face.normal);
-      // voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-      // scene.add(voxel);
-      // objects.push(voxel);
-
       render();
     }
   }
