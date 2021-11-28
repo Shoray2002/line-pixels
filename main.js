@@ -216,11 +216,25 @@ function onXDown(event) {
       }
 
       if (marked.length >= 2) {
+        let x1 = marked[marked.length - 2].x;
+        let y1 = marked[marked.length - 2].y;
+        let x2 = marked[marked.length - 1].x;
+        let y2 = marked[marked.length - 1].y;
+        let v1 = new THREE.Vector3(x1 * 50 + 25, 0, -1 * (y1 * 50 - 25));
+        let v2 = new THREE.Vector3(x2 * 50 + 25, 0, -1 * (y2 * 50 - 25));
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints([v1, v2]);
+        const lineMaterial = new THREE.LineBasicMaterial({
+          color: 0x000000,
+        });
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        // bring the line to the top layer
+        line.position.y = 0;
+        scene.add(line);
+        objects.push(line);
         let result = lineMP(
           marked[marked.length - 2],
           marked[marked.length - 1]
         );
-        
 
         marked.pop();
         marked.pop();
