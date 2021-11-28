@@ -1,10 +1,11 @@
 import "./style.css";
 import * as THREE from "https://cdn.skypack.dev/three";
 import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js";
+import { lineMP } from "./lineMP.mjs";
 let camera, scene, renderer;
 let plane;
 
-let pointer, raycaster, position;
+let pointer, raycaster;
 
 let rollOverMesh1, rollOverMaterial1;
 let redMat, redMatmaterial;
@@ -201,18 +202,37 @@ function onXDown(event) {
         mat.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
         mat.updateMatrix();
         plane.geometry.merge(mat.geometry, mat.matrix);
-        marked.push([
-          (mat.position.x - 25) / 50,
-          Math.abs((mat.position.z - 25) / 50),
-        ]);
+        let x = (mat.position.x - 25) / 50;
+        let y = -1 * ((mat.position.z - 25) / 50);
+        marked.push({ x: x, y: y });
         console.log(
           "Marked: " +
-            marked[marked.length - 1][0] +
+            marked[marked.length - 1].x +
             "," +
-            marked[marked.length - 1][1]
+            marked[marked.length - 1].y
         );
         objects.push(mat);
         scene.add(mat);
+      }
+
+      if (marked.length >= 2) {
+        // let result = lineMP(
+        //   marked[marked.length - 2],
+        //   marked[marked.length - 1]
+        // );
+        marked.pop();
+        marked.pop();
+        console.log(result);
+        for (let i = 0; i < result.length; i++) {
+          const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
+          cube.position.set(
+            result[i].x * 50 + 25,
+            25,
+            -1 * (result[i].y * 50 - 25)
+          );
+          objects.push(cube);
+          scene.add(cube);
+        }
       }
       render();
     }
