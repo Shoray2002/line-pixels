@@ -259,13 +259,21 @@ function onDocumentKeyDown(event) {
   switch (event.keyCode) {
     // backspace
     case 8:
-      if (objects.length > 1) {
+      while (objects.length > 1) {
         scene.remove(objects[objects.length - 1]);
         objects.pop();
         render();
-      } else {
-        console.log("No Mats to remove");
-      }
+      } // remove all objects at once
+
+    // if (objects.length > 1) {
+    //   scene.remove(objects[objects.length - 1]);
+    //   objects.pop();
+    //   render();
+    // }
+    // else{
+    //   console.log("No Mats to Remove")
+    // }
+    // remove objects one by one
   }
 }
 
