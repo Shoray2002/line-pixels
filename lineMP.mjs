@@ -1,3 +1,9 @@
+// function used to generate the points on the line
+// input: {x0, y0}, {x1, y1}
+// output: array of required points
+
+
+// algorithm
 function lineMP({ x: x0, y: y0 }, { x: x1, y: y1 }) {
   let result = [];
   var dx = Math.abs(x1 - x0);

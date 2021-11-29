@@ -1,44 +1,44 @@
-import "./style.css";
+import "../css/style.css"; //import of css styles
 import * as THREE from "https://cdn.skypack.dev/three";
 import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js";
-import { lineMP } from "./lineMP.mjs";
+// import of threeJS dependencies using CDN
+import { lineMP } from "../lineMP.mjs";
+// import of mjs module
+
+// variables
 let camera, scene, renderer;
 let plane;
-
 let pointer, raycaster;
-
-let rollOverMesh1, rollOverMaterial1;
+let rollOverMesh, rollOverMaterial;
 let redMat, redMatmaterial;
 let cubeGeo, cubeMaterial;
-const objects = [];
-// a dictionary of all the marked points
-const marked = [];
+const objects = []; // objects in the scene
+const marked = []; // marked points by the user
 
 init();
 
 function init() {
+  // set up scene and camera
   camera = new THREE.PerspectiveCamera(
     15,
     window.innerWidth / window.innerHeight,
     1,
     100000
   );
-  camera.position.set(500, 900, 1300);
+  camera.position.set(-400, 800, 700);
   camera.lookAt(0, 0, 0);
-
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x8e88b3);
 
   // roll-over helpers
-
-  const rollOverGeo1 = new THREE.PlaneGeometry(50, 50);
-  rollOverGeo1.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  rollOverGeo1.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
-  rollOverMaterial1 = new THREE.MeshBasicMaterial({
+  const rollOverGeo = new THREE.PlaneGeometry(50, 50);
+  rollOverGeo.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+  rollOverGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  rollOverMaterial = new THREE.MeshBasicMaterial({
     color: 0x1ed760,
   });
-  rollOverMesh1 = new THREE.Mesh(rollOverGeo1, rollOverMaterial1);
-  scene.add(rollOverMesh1);
+  rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+  scene.add(rollOverMesh);
 
   // mats
   redMat = new THREE.PlaneGeometry(50, 50);
@@ -51,7 +51,6 @@ function init() {
   });
 
   // cubes
-
   cubeGeo = new THREE.BoxGeometry(50, 12.5, 50);
   cubeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
   cubeMaterial = new THREE.MeshLambertMaterial({
@@ -60,11 +59,7 @@ function init() {
     transparent: true,
   });
 
-  // grid
-
-  const gridHelper = new THREE.GridHelper(2000, 40, "red", 0x555555);
-  // scene.add(gridHelper);
-  // draw line from origin to edge of grid
+  // drawing the axes
   const points1 = [];
   points1.push(new THREE.Vector3(25, 0, 25));
   points1.push(new THREE.Vector3(1050, 0, 25));
@@ -77,10 +72,10 @@ function init() {
   const lineGeo2 = new THREE.BufferGeometry().setFromPoints(points2);
   const lineMat2 = new THREE.LineBasicMaterial({ color: 0xff0000 });
   const line2 = new THREE.Line(lineGeo2, lineMat2);
-
   scene.add(line);
   scene.add(line2);
 
+  // drawing the plane
   let cubeGeo2 = new THREE.BoxGeometry(50, 12.5, 50);
   cubeGeo2.applyMatrix(new THREE.Matrix4().makeTranslation(0, -12.5, 0));
   let lightMaterial = new THREE.MeshLambertMaterial({
@@ -90,7 +85,7 @@ function init() {
     color: 0x8e88b3,
   });
   let board = new THREE.Group();
-
+  // make a checkerboard like pattern
   for (let i = -20; i <= 20; i++) {
     for (let j = -20; j <= 20; j++) {
       if (j % 2 == 0) {
@@ -105,23 +100,14 @@ function init() {
           i % 2 == 0 ? darkMaterial : lightMaterial
         );
       }
-      // if ((i == j || i == -j) && i != 0) {
-      //   var cube = new THREE.Mesh(cubeGeo, redMatmaterial);
-      // }
       cube.position.set(i * 50, 0, j * 50);
       board.add(cube);
     }
   }
   board.position.set(25, 12.5, 25);
-  // make the board translucent
-  board.traverse((child) => {
-    if (child instanceof THREE.Mesh) {
-      child.material.transparent = true;
-      child.material.opacity = 0.99;
-    }
-  });
   scene.add(board);
 
+  // setting up the invisible movement plane on which the user can move (this plane is smaller than the plane above)
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
   const geometry = new THREE.PlaneGeometry(2000, 2000);
@@ -139,15 +125,31 @@ function init() {
   const directionalLight = new THREE.DirectionalLight(0xffffff);
   directionalLight.position.set(1, 0.75, 0.5).normalize();
   scene.add(directionalLight);
+
+  // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
+
+  // controls
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("keydown", onXDown);
   document.addEventListener("keydown", onDocumentKeyDown);
   window.addEventListener("resize", onWindowResize);
+  window.addEventListener("wheel", (event) => {
+    // zoom in and out
+    if (event.deltaY < 0) {
+      camera.fov -= 2;
+    } else {
+      camera.fov += 2;
+    }
+    camera.updateProjectionMatrix();
+    render();
+  });
 }
+
+// event handlers
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -156,31 +158,31 @@ function onWindowResize() {
   render();
 }
 
+// when user moves the pointer
 function onPointerMove(event) {
   pointer.set(
     (event.clientX / window.innerWidth) * 2 - 1,
     -(event.clientY / window.innerHeight) * 2 + 1
   );
   raycaster.setFromCamera(pointer, camera);
-
   const intersects = raycaster.intersectObjects(objects, false);
-
   if (intersects.length > 0) {
     const intersect = intersects[0];
-    rollOverMesh1.position.copy(intersect.point).add(intersect.face.normal);
-    rollOverMesh1.position
+    rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+    rollOverMesh.position
       .divideScalar(50)
       .floor()
       .multiplyScalar(50)
       .addScalar(25);
-    // console.log(
-    //   (rollOverMesh1.position.x - 25) / 50,
-    //   Math.abs((rollOverMesh1.position.z - 25) / 50)
-    // );
   }
   render();
+  // console log the position of the pointer with respect to the plane
+  let x = (rollOverMesh.position.x - 25) / 50;
+  let y = -1 * ((rollOverMesh.position.z - 25) / 50);
+  console.log(x, y);
 }
 
+// when x is pressed
 function onXDown(event) {
   // if event is x
   if (event.key == "x") {
@@ -190,13 +192,6 @@ function onXDown(event) {
       const intersect = intersects[0];
       // stop stacking
       if (intersect.object === plane) {
-        // const cube = new THREE.Mesh(cubeGeo, cubeMaterial);
-        // cube.position.copy(intersect.point).add(intersect.face.normal);
-        // cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-        // cube.updateMatrix();
-        // plane.geometry.merge(cube.geometry, cube.matrix);
-        // objects.push(cube);
-        // scene.add(cube);
         const mat = new THREE.Mesh(redMat, redMatmaterial);
         mat.position.copy(intersect.point).add(intersect.face.normal);
         mat.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
@@ -227,8 +222,7 @@ function onXDown(event) {
           color: 0x000000,
         });
         const line = new THREE.Line(lineGeometry, lineMaterial);
-        // bring the line to the top layer
-        line.position.y = 0;
+        line.position.y = 5;
         scene.add(line);
         objects.push(line);
         let result = lineMP(
@@ -255,6 +249,7 @@ function onXDown(event) {
   }
 }
 
+// when backspace is pressed
 function onDocumentKeyDown(event) {
   switch (event.keyCode) {
     // backspace
@@ -262,35 +257,20 @@ function onDocumentKeyDown(event) {
       while (objects.length > 1) {
         scene.remove(objects[objects.length - 1]);
         objects.pop();
+
         render();
       } // remove all objects at once
-
-    // if (objects.length > 1) {
-    //   scene.remove(objects[objects.length - 1]);
-    //   objects.pop();
-    //   render();
-    // }
-    // else{
-    //   console.log("No Mats to Remove")
-    // }
-    // remove objects one by one
+      console.log("Scene Reset");
+      break;
   }
 }
 
+// render the scene
 function render() {
   renderer.render(scene, camera);
 }
 
-window.addEventListener("wheel", (event) => {
-  if (event.deltaY < 0) {
-    camera.fov -= 2;
-  } else {
-    camera.fov += 2;
-  }
-  camera.updateProjectionMatrix();
-  render();
-});
-
+// animate the scene
 function animate() {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -298,7 +278,6 @@ function animate() {
   controls.enableZoom = false;
   controls.enableRotate = false;
   controls.panSpeed = 0.1;
-  // controls.enablePan = false;
   controls.update();
   requestAnimationFrame(animate);
   render();
