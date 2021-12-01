@@ -3,20 +3,19 @@ import * as THREE from "https://cdn.skypack.dev/three";
 import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js";
 import { DragControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/DragControls.js";
 import { Text } from "troika-three-text";
-import { lineMP } from "./lineMP.mjs";
 import factory from "./assets/factory.png";
-// import of mjs module
-
+import font from "./assets/NotoSansSC-Regular.otf";
 // variables
 let camera, scene, renderer;
 let plane;
 let pointer, raycaster;
-let sphereGeo, sphereMaterial;
+let sphereGeo;
+let controls;
 const objects = []; // objects in the scene
 const size = 16;
 
 const data = dataSet();
-console.log(data);
+// console.log(data);
 init();
 function dataSet() {
   // data
@@ -70,10 +69,19 @@ function dataSet() {
 
 function init() {
   // set up scene and camera
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    1,
+  // camera = new THREE.PerspectiveCamera(
+  //   75,
+  //   window.innerWidth / window.innerHeight,
+  //   1,
+  //   10000
+  // );
+  // othographic camera
+  camera = new THREE.OrthographicCamera(
+    window.innerWidth * -1.2,
+    window.innerWidth * 1.2,
+    window.innerHeight * 1.2,
+    window.innerHeight * -1.2,
+    2,
     10000
   );
   camera.position.set(0, 1200, 0);
@@ -82,42 +90,46 @@ function init() {
   scene.background = new THREE.Color(0x000);
 
   // sphere
-  sphereGeo = new THREE.SphereGeometry(50, 12.5, 50);
+  sphereGeo = new THREE.SphereGeometry(50, 32, 32);
   function sphereMaterial(color) {
     return new THREE.MeshLambertMaterial({
       color: color,
-      opacity: 0.8,
+      opacity: 0.95,
       transparent: true,
     });
   }
 
   let board = new THREE.Group();
   for (let i = 0; i < size; i++) {
-    var cube;
+    var sphere;
     const { x, y, sx, sy, color, name, pv } = data[i];
-    cube = new THREE.Mesh(sphereGeo, sphereMaterial(color));
-    cube.position.set(x * 400, -20, y * 400 + 150);
-    cube.scale.set(sx, sy, 0.8);
-    cube.name = name;
+    sphere = new THREE.Mesh(sphereGeo, sphereMaterial(color));
+    sphere.position.set(x * 400 + 150, 0, y * 400 + 150);
+    sphere.scale.set(sx, sy, 0.8);
+    sphere.name = name;
     const toptext = new Text();
     const bottomtext = new Text();
     toptext.text = name;
     toptext.fontSize = 40;
     toptext.name = name;
-    toptext.position.set(x * 400 - 50, 20, y * 400 + 50);
+    let len = name.length;
+    toptext.position.set(x * 400 + 150 - len * 13, 20, y * 400 + 50);
     toptext.rotation.x = -Math.PI / 2;
+    toptext.font = font;
+
     bottomtext.text = "PV: " + pv;
     bottomtext.fontSize = 40;
-    bottomtext.position.set(x * 400 - 50, 20, y * 400 + 220);
+    len = bottomtext.text.length;
+    bottomtext.position.set(x * 400 + 150 - len * 10, 20, y * 400 + 200);
     bottomtext.rotation.x = -Math.PI / 2;
     bottomtext.name = name;
-    board.add(cube);
-    board.add(toptext);
-    board.add(bottomtext);
-    objects.push(cube);
+    board.add(sphere, toptext, bottomtext);
+    // objects.push(board);
+    objects.push(sphere);
     objects.push(toptext);
     objects.push(bottomtext);
   }
+  console.log(objects);
   board.position.set(25, 12.5, 25);
   scene.add(board);
 
@@ -138,7 +150,7 @@ function init() {
   const ambientLight = new THREE.AmbientLight(0xffffff);
   scene.add(ambientLight);
   const directionalLight = new THREE.DirectionalLight(0xffffff);
-  directionalLight.position.set(1, 0.75, 0.5).normalize();
+  directionalLight.position.set(camera.position);
   scene.add(directionalLight);
 
   // renderer
@@ -147,20 +159,61 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  // controls
+  // events
   document.addEventListener("pointermove", onPointerMove);
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("wheel", (event) => {
     // zoom in and out
+    // if (event.deltaY < 0) {
+    //   camera.fov -= 2;
+    // } else {
+    //   camera.fov += 2;
+    // }
     if (event.deltaY < 0) {
-      camera.fov -= 2;
-    } else {
-      camera.fov += 2;
+      camera.zoom += 0.05;
+    }
+    if (event.deltaY > 0) {
+      camera.zoom -= 0.05;
+    }
+
+    camera.updateProjectionMatrix();
+    render();
+  });
+  // controls
+  window.addEventListener("keydown", (event) => {
+    switch (event.key) {
+      case "ArrowUp": // up
+        camera.position.z -= 10;
+        break;
+      case "ArrowDown": // down
+        camera.position.z += 10;
+        break;
+      case "ArrowLeft": // left
+        camera.position.x -= 10;
+        break;
+      case "ArrowRight": // right
+        camera.position.x += 10;
+        break;
+      case "+": // +
+        camera.zoom += 0.05;
+        break;
+      case "-": // -
+        camera.zoom -= 0.05;
+        break;
+      case "r": // reset
+        camera.position.set(0, 1200, 0);
+        camera.lookAt(0, 0, 0);
+        camera.zoom = 1;
+        break;
+      default:
+        break;
     }
     camera.updateProjectionMatrix();
     render();
   });
-  const controls = new DragControls([...objects], camera, renderer.domElement);
+
+  // drag multiple objects at once
+  controls = new DragControls([...objects], camera, renderer.domElement);
   controls.addEventListener("drag", render);
   console.log(controls.getObjects());
 }
@@ -168,7 +221,10 @@ function init() {
 // event handlers
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.left = window.innerWidth * -1.2;
+  camera.right = window.innerWidth * 1.2;
+  camera.top = window.innerHeight * 1.2;
+  camera.bottom = window.innerHeight * -1.2;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   render();
@@ -187,13 +243,13 @@ function render() {
 
 // animate the scene
 function animate() {
-  // const controls = new OrbitControls(camera, renderer.domElement);
-  // controls.enableDamping = true;
-  // controls.dampingFactor = 1;
-  // controls.enableZoom = false;
-  // controls.enableRotate = false;
-  // controls.panSpeed = 0.1;
-  // controls.update();
+  // const pan = new OrbitControls(camera, renderer.domElement);
+  // pan.enableZoom = false;
+  // pan.enableRotate = false;
+  // pan.rotationSpeed = 0.01;
+  // // pan.enablePan = false;
+  // pan.panSpeed = 0.01;
+  // pan.update();
   requestAnimationFrame(animate);
   render();
 }
