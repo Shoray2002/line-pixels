@@ -8,5 +8,9 @@
   },
   "devDependencies": {
     "vite": "^2.6.4"
+  },
+  "dependencies": {
+    "three": "^0.135.0",
+    "troika-three-text": "^0.44.0"
   }
 }
