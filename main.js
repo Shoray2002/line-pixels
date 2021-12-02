@@ -1,11 +1,55 @@
 import "./style.css"; //import of css styles
 import * as THREE from "https://cdn.skypack.dev/three";
 import { DragControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/DragControls.js";
-import { TWEEN } from "three/examples/jsm/libs/tween.module.min";
+import * as TWEEN from "@tweenjs/tween.js";
 import { Text } from "troika-three-text";
 import factory from "./assets/factory.png";
 import font from "./assets/NotoSansSC-Regular.otf";
 // variables
+
+THREE.Color.prototype.getHSV = function () {
+  var rr,
+    gg,
+    bb,
+    h,
+    s,
+    r = this.r,
+    g = this.g,
+    b = this.b,
+    v = Math.max(r, g, b),
+    diff = v - Math.min(r, g, b),
+    diffc = function (c) {
+      return (v - c) / 6 / diff + 1 / 2;
+    };
+
+  if (diff == 0) {
+    h = s = 0;
+  } else {
+    s = diff / v;
+    rr = diffc(r);
+    gg = diffc(g);
+    bb = diffc(b);
+
+    if (r === v) {
+      h = bb - gg;
+    } else if (g === v) {
+      h = 1 / 3 + rr - bb;
+    } else if (b === v) {
+      h = 2 / 3 + gg - rr;
+    }
+    if (h < 0) {
+      h += 1;
+    } else if (h > 1) {
+      h -= 1;
+    }
+  }
+  return {
+    h: h,
+    s: s,
+    v: v,
+  };
+};
+
 let camera, scene, renderer;
 let plane;
 let pointer, raycaster, group;
@@ -16,14 +60,14 @@ const size = 16;
 const draggableObjects = [];
 const data = dataSet();
 const faulty = new THREE.MeshPhongMaterial({
-  color: 0xf79f1f,
+  color: "#F79F1F",
   shininess: 0,
   specular: 0x000000,
   flatShading: true,
 });
 
 const dangerous = new THREE.MeshPhongMaterial({
-  color: 0xff7675,
+  color: "#ff7675",
   shininess: 0,
   specular: 0x000000,
   flatShading: true,
@@ -153,7 +197,6 @@ function init() {
     objects.push(toptext);
     objects.push(bottomtext);
   }
-  console.log(draggableObjects);
   board.position.set(25, 12.5, 25);
   scene.add(board);
 
@@ -179,7 +222,7 @@ function init() {
     camera.position.y,
     camera.position.z
   );
-  scene.add(directionalLight);
+  // scene.add(directionalLight);
 
   // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -191,23 +234,21 @@ function init() {
   document.addEventListener("pointermove", onPointerMove);
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("wheel", (event) => {
-    // zoom in and out
-    // if (event.deltaY < 0) {
-    //   camera.fov -= 2;
-    // } else {
-    //   camera.fov += 2;
-    // }
     if (event.deltaY < 0) {
       camera.zoom += 0.05;
     }
     if (event.deltaY > 0) {
       camera.zoom -= 0.05;
     }
-
     camera.updateProjectionMatrix();
     render();
   });
+  window.addEventListener("load", changeColor);
 
+  // setInterval(() => {
+  //   colorizer();
+  //   render();
+  // }, 1000);
   // keyboard controls
   window.addEventListener("keydown", (event) => {
     switch (event.key) {
@@ -288,15 +329,55 @@ function onPointerMove(event) {
   render();
 }
 
+function changeColor() {
+  const faulty = objects.filter((object) => object.status === "faulty");
+  const dangerous = objects.filter((object) => object.status === "dangerous");
+  setInterval(() => {
+    faulty.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.material.color.set("#F79F1F");
+      }
+    });
+    dangerous.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.material.color.set("#ff7675");
+      }
+    });
+  }, 200);
+  setInterval(() => {
+    faulty.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.material.color.set("white");
+      }
+    });
+    dangerous.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.material.color.set("white");
+      }
+    });
+  }, 300);
+
+  render();
+}
 // render the scene
-function render() {
+function render(time) {
+  // console.log(time);
+  // const faultySpheres = objects.filter((object) => object.status === "faulty");
+  // new TWEEN.Tween(faultySpheres[0].material.color.getHSV())
+  //   .to({ h: 115, s: 0.63, v: 1 }, 200)
+  //   .easing(TWEEN.Easing.Quartic.In)
+  //   .onUpdate(function () {
+  //     mesh.material.color.setHSV(this.h, this.s, this.v);
+  //   })
+  //   .start();
+
   renderer.render(scene, camera);
 }
 
-const faultySpheres = objects.filter((object) => object.status === "faulty");
-const dangerousSpheres = objects.filter(
-  (object) => object.status === "dangerous"
-);
+// const faultySpheres = objects.filter((object) => object.status === "faulty");
+// const dangerousSpheres = objects.filter(
+//   (object) => object.status === "dangerous"
+// );
 // setInterval(() => {
 //   faultySpheres.forEach((sphere) => {
 //     if (sphere.material.color === 0xf79f1f) {
@@ -321,9 +402,9 @@ const dangerousSpheres = objects.filter(
 // }, 1000);
 
 // animate the scene
-function animate() {
+function animate(time) {
   requestAnimationFrame(animate);
-  render();
+  render(time);
 }
 
 animate();
