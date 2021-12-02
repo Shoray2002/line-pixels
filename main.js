@@ -1,21 +1,33 @@
 import "./style.css"; //import of css styles
 import * as THREE from "https://cdn.skypack.dev/three";
-import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js";
 import { DragControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/DragControls.js";
+import { TWEEN } from "three/examples/jsm/libs/tween.module.min";
 import { Text } from "troika-three-text";
 import factory from "./assets/factory.png";
 import font from "./assets/NotoSansSC-Regular.otf";
 // variables
 let camera, scene, renderer;
 let plane;
-let pointer, raycaster;
+let pointer, raycaster, group;
 let sphereGeo;
 let controls;
 const objects = []; // objects in the scene
 const size = 16;
-
+const draggableObjects = [];
 const data = dataSet();
-// console.log(data);
+const faulty = new THREE.MeshPhongMaterial({
+  color: 0xf79f1f,
+  shininess: 0,
+  specular: 0x000000,
+  flatShading: true,
+});
+
+const dangerous = new THREE.MeshPhongMaterial({
+  color: 0xff7675,
+  shininess: 0,
+  specular: 0x000000,
+  flatShading: true,
+});
 init();
 function dataSet() {
   // data
@@ -89,24 +101,35 @@ function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000);
 
+  group = new THREE.Group();
+  scene.add(group);
+
   // sphere
   sphereGeo = new THREE.SphereGeometry(50, 32, 32);
-  function sphereMaterial(color) {
-    return new THREE.MeshLambertMaterial({
-      color: color,
-      opacity: 0.95,
-      transparent: true,
-    });
+  function sphereMaterial(color, status) {
+    if (status === "faulty") {
+      return faulty;
+    }
+    if (status === "dangerous") {
+      return dangerous;
+    } else {
+      return new THREE.MeshLambertMaterial({
+        color: color,
+        opacity: 0.95,
+        transparent: true,
+      });
+    }
   }
 
   let board = new THREE.Group();
   for (let i = 0; i < size; i++) {
     var sphere;
-    const { x, y, sx, sy, color, name, pv } = data[i];
-    sphere = new THREE.Mesh(sphereGeo, sphereMaterial(color));
+    const { x, y, sx, sy, color, name, pv, status } = data[i];
+    sphere = new THREE.Mesh(sphereGeo, sphereMaterial(color, status));
     sphere.position.set(x * 400 + 150, 0, y * 400 + 150);
     sphere.scale.set(sx, sy, 0.8);
     sphere.name = name;
+    sphere.status = status;
     const toptext = new Text();
     const bottomtext = new Text();
     toptext.text = name;
@@ -124,12 +147,13 @@ function init() {
     bottomtext.rotation.x = -Math.PI / 2;
     bottomtext.name = name;
     board.add(sphere, toptext, bottomtext);
+    draggableObjects.push([sphere, toptext, bottomtext]);
     // objects.push(board);
     objects.push(sphere);
     objects.push(toptext);
     objects.push(bottomtext);
   }
-  console.log(objects);
+  console.log(draggableObjects);
   board.position.set(25, 12.5, 25);
   scene.add(board);
 
@@ -150,7 +174,11 @@ function init() {
   const ambientLight = new THREE.AmbientLight(0xffffff);
   scene.add(ambientLight);
   const directionalLight = new THREE.DirectionalLight(0xffffff);
-  directionalLight.position.set(camera.position);
+  directionalLight.position.set(
+    camera.position.x,
+    camera.position.y,
+    camera.position.z
+  );
   scene.add(directionalLight);
 
   // renderer
@@ -179,7 +207,8 @@ function init() {
     camera.updateProjectionMatrix();
     render();
   });
-  // controls
+
+  // keyboard controls
   window.addEventListener("keydown", (event) => {
     switch (event.key) {
       case "ArrowUp": // up
@@ -214,11 +243,34 @@ function init() {
 
   // drag multiple objects at once
   controls = new DragControls([...objects], camera, renderer.domElement);
-  controls.addEventListener("drag", render);
+  // controls.transformGroup = true;
   console.log(controls.getObjects());
+  controls.addEventListener("hoveron", hover);
+  controls.addEventListener("hoveroff", hover);
+  controls.addEventListener("drag", render);
 }
 
 // event handlers
+function hover(event) {
+  console.log(event.object.name, event.object.geometry.type);
+  const selected = objects.filter(
+    (object) => object.name === event.object.name
+  );
+  if (event.type === "hoveron") {
+    selected.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.scale.set(0.95, 0.95, 0.95);
+      }
+    });
+  } else if (event.type === "hoveroff") {
+    selected.forEach((object) => {
+      if (object.geometry.type === "SphereGeometry") {
+        object.scale.set(0.8, 0.8, 0.8);
+      }
+    });
+  }
+  render();
+}
 
 function onWindowResize() {
   camera.left = window.innerWidth * -1.2;
@@ -241,15 +293,35 @@ function render() {
   renderer.render(scene, camera);
 }
 
+const faultySpheres = objects.filter((object) => object.status === "faulty");
+const dangerousSpheres = objects.filter(
+  (object) => object.status === "dangerous"
+);
+// setInterval(() => {
+//   faultySpheres.forEach((sphere) => {
+//     if (sphere.material.color === 0xf79f1f) {
+//       let tween = new TWEEN.Tween(sphere.material.color)
+//         .to({ r: 177, g: 128, b: 208 },1)
+//         .easing(TWEEN.Easing.Quartic.In)
+//         .repeat(Infinity)
+//         .yoyo(true)
+//         .start();
+//       console.log(sphere.material.color);
+//       tween.update(Date.now());
+//     } else {
+//       let tween = new TWEEN.Tween()
+//       tween._valuesStart = sphere.material.color;
+//       tween._valuesEnd = "blue";
+//       console.log(tween);
+//       console.log(sphere.material.color);
+//       tween.update(Date.now());
+//     }
+//   });
+//   render();
+// }, 1000);
+
 // animate the scene
 function animate() {
-  // const pan = new OrbitControls(camera, renderer.domElement);
-  // pan.enableZoom = false;
-  // pan.enableRotate = false;
-  // pan.rotationSpeed = 0.01;
-  // // pan.enablePan = false;
-  // pan.panSpeed = 0.01;
-  // pan.update();
   requestAnimationFrame(animate);
   render();
 }
