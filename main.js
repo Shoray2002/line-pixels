@@ -14,17 +14,7 @@ let controls;
 const objects = [];
 const size = 16;
 const data = dataSet();
-const faulty = new THREE.MeshPhongMaterial({
-  color: "#F79F1F",
-  shininess: 0,
-  flatShading: true,
-});
 
-const dangerous = new THREE.MeshPhongMaterial({
-  color: "#ff7675",
-  shininess: 0,
-  flatShading: true,
-});
 init();
 function dataSet() {
   // data
@@ -105,10 +95,18 @@ function init() {
   sphereGeo = new THREE.SphereGeometry(50, 32, 32);
   function sphereMaterial(color, status) {
     if (status === "faulty") {
-      return faulty;
+      return new THREE.MeshPhongMaterial({
+        color: "#F79F1F",
+        shininess: 0,
+        flatShading: true,
+      });
     }
     if (status === "dangerous") {
-      return dangerous;
+      return new THREE.MeshPhongMaterial({
+        color: "#ff7675",
+        shininess: 0,
+        flatShading: true,
+      });
     } else {
       return new THREE.MeshLambertMaterial({
         color: color,
@@ -200,23 +198,22 @@ function init() {
   });
   window.addEventListener("load", changeColor);
 
-  // setInterval(() => {
-  //   colorizer();
-  //   render();
-  // }, 1000);
-  // keyboard controls
   window.addEventListener("keydown", (event) => {
     switch (event.key) {
       case "ArrowUp": // up
+      case "w":
         camera.position.z -= 10;
         break;
       case "ArrowDown": // down
+      case "s":
         camera.position.z += 10;
         break;
       case "ArrowLeft": // left
+      case "a":
         camera.position.x -= 10;
         break;
       case "ArrowRight": // right
+      case "d":
         camera.position.x += 10;
         break;
       case "+": // +
@@ -250,15 +247,16 @@ function init() {
 
 // event handlers
 function hover(event) {
-  console.log(event.object.name, event.object.geometry.type);
   const selected = objects.filter(
     (object) => object.name === event.object.name
   );
-  console.log(selected);
   if (event.type === "hoveron") {
     selected.forEach((object) => {
       if (object.geometry.type === "SphereGeometry") {
         object.scale.set(0.95, 0.95, 0.95);
+      } else {
+        // make invisible
+        object.material.opacity = 0;
       }
     });
   } else if (event.type === "hoveroff") {
@@ -268,6 +266,7 @@ function hover(event) {
         object.scale.set(0.8, 0.8, 0.8);
         oc = object;
       } else {
+        object.material.opacity = 1;
         let len = object.text.length;
         if (object.pos === "top") {
           object.position.set(
