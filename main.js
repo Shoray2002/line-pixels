@@ -1,75 +1,28 @@
 import "./style.css"; //import of css styles
 import * as THREE from "https://cdn.skypack.dev/three";
 import { DragControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/DragControls.js";
-import * as TWEEN from "@tweenjs/tween.js";
 import { Text } from "troika-three-text";
 import factory from "./assets/factory.png";
 import font from "./assets/NotoSansSC-Regular.otf";
 // variables
-
-THREE.Color.prototype.getHSV = function () {
-  var rr,
-    gg,
-    bb,
-    h,
-    s,
-    r = this.r,
-    g = this.g,
-    b = this.b,
-    v = Math.max(r, g, b),
-    diff = v - Math.min(r, g, b),
-    diffc = function (c) {
-      return (v - c) / 6 / diff + 1 / 2;
-    };
-
-  if (diff == 0) {
-    h = s = 0;
-  } else {
-    s = diff / v;
-    rr = diffc(r);
-    gg = diffc(g);
-    bb = diffc(b);
-
-    if (r === v) {
-      h = bb - gg;
-    } else if (g === v) {
-      h = 1 / 3 + rr - bb;
-    } else if (b === v) {
-      h = 2 / 3 + gg - rr;
-    }
-    if (h < 0) {
-      h += 1;
-    } else if (h > 1) {
-      h -= 1;
-    }
-  }
-  return {
-    h: h,
-    s: s,
-    v: v,
-  };
-};
 
 let camera, scene, renderer;
 let plane;
 let pointer, raycaster, group;
 let sphereGeo;
 let controls;
-const objects = []; // objects in the scene
+const objects = [];
 const size = 16;
-const draggableObjects = [];
 const data = dataSet();
 const faulty = new THREE.MeshPhongMaterial({
   color: "#F79F1F",
   shininess: 0,
-  specular: 0x000000,
   flatShading: true,
 });
 
 const dangerous = new THREE.MeshPhongMaterial({
   color: "#ff7675",
   shininess: 0,
-  specular: 0x000000,
   flatShading: true,
 });
 init();
@@ -124,13 +77,13 @@ function dataSet() {
 }
 
 function init() {
-  // set up scene and camera
   // camera = new THREE.PerspectiveCamera(
   //   75,
   //   window.innerWidth / window.innerHeight,
   //   1,
   //   10000
   // );
+
   // othographic camera
   camera = new THREE.OrthographicCamera(
     window.innerWidth * -1.2,
@@ -179,19 +132,21 @@ function init() {
     toptext.text = name;
     toptext.fontSize = 40;
     toptext.name = name;
+    toptext.pos = "top";
     let len = name.length;
     toptext.position.set(x * 400 + 150 - len * 13, 20, y * 400 + 50);
     toptext.rotation.x = -Math.PI / 2;
     toptext.font = font;
-
     bottomtext.text = "PV: " + pv;
     bottomtext.fontSize = 40;
     len = bottomtext.text.length;
     bottomtext.position.set(x * 400 + 150 - len * 10, 20, y * 400 + 200);
     bottomtext.rotation.x = -Math.PI / 2;
     bottomtext.name = name;
+    bottomtext.pos = "bottom";
+    toptext.isDraggable = false;
+    bottomtext.isDraggable = false;
     board.add(sphere, toptext, bottomtext);
-    draggableObjects.push([sphere, toptext, bottomtext]);
     // objects.push(board);
     objects.push(sphere);
     objects.push(toptext);
@@ -282,10 +237,12 @@ function init() {
     render();
   });
 
-  // drag multiple objects at once
-  controls = new DragControls([...objects], camera, renderer.domElement);
+  const draggable = objects.filter(
+    (object) => object.geometry.type === "SphereGeometry"
+  );
+
+  controls = new DragControls([...draggable], camera, renderer.domElement);
   // controls.transformGroup = true;
-  console.log(controls.getObjects());
   controls.addEventListener("hoveron", hover);
   controls.addEventListener("hoveroff", hover);
   controls.addEventListener("drag", render);
@@ -297,6 +254,7 @@ function hover(event) {
   const selected = objects.filter(
     (object) => object.name === event.object.name
   );
+  console.log(selected);
   if (event.type === "hoveron") {
     selected.forEach((object) => {
       if (object.geometry.type === "SphereGeometry") {
@@ -304,9 +262,22 @@ function hover(event) {
       }
     });
   } else if (event.type === "hoveroff") {
+    let oc;
     selected.forEach((object) => {
       if (object.geometry.type === "SphereGeometry") {
         object.scale.set(0.8, 0.8, 0.8);
+        oc = object;
+      } else {
+        let len = object.text.length;
+        if (object.pos === "top") {
+          object.position.set(
+            oc.position.x - len * 13,
+            20,
+            oc.position.z - 100
+          );
+        } else {
+          object.position.set(oc.position.x - len * 10, 20, oc.position.z + 50);
+        }
       }
     });
   }
@@ -343,7 +314,7 @@ function changeColor() {
         object.material.color.set("#ff7675");
       }
     });
-  }, 200);
+  }, 50);
   setInterval(() => {
     faulty.forEach((object) => {
       if (object.geometry.type === "SphereGeometry") {
@@ -355,54 +326,23 @@ function changeColor() {
         object.material.color.set("white");
       }
     });
-  }, 300);
+  }, 900);
 
   render();
 }
 // render the scene
 function render(time) {
-  // console.log(time);
-  // const faultySpheres = objects.filter((object) => object.status === "faulty");
-  // new TWEEN.Tween(faultySpheres[0].material.color.getHSV())
-  //   .to({ h: 115, s: 0.63, v: 1 }, 200)
-  //   .easing(TWEEN.Easing.Quartic.In)
-  //   .onUpdate(function () {
-  //     mesh.material.color.setHSV(this.h, this.s, this.v);
-  //   })
-  //   .start();
-
   renderer.render(scene, camera);
 }
 
-// const faultySpheres = objects.filter((object) => object.status === "faulty");
-// const dangerousSpheres = objects.filter(
-//   (object) => object.status === "dangerous"
-// );
-// setInterval(() => {
-//   faultySpheres.forEach((sphere) => {
-//     if (sphere.material.color === 0xf79f1f) {
-//       let tween = new TWEEN.Tween(sphere.material.color)
-//         .to({ r: 177, g: 128, b: 208 },1)
-//         .easing(TWEEN.Easing.Quartic.In)
-//         .repeat(Infinity)
-//         .yoyo(true)
-//         .start();
-//       console.log(sphere.material.color);
-//       tween.update(Date.now());
-//     } else {
-//       let tween = new TWEEN.Tween()
-//       tween._valuesStart = sphere.material.color;
-//       tween._valuesEnd = "blue";
-//       console.log(tween);
-//       console.log(sphere.material.color);
-//       tween.update(Date.now());
-//     }
-//   });
-//   render();
-// }, 1000);
-
 // animate the scene
 function animate(time) {
+  // give all objects with the same name the same position
+  objects.forEach((object) => {
+    if (object.name === "plane") {
+      object.position.set(0, 0, 0);
+    }
+  });
   requestAnimationFrame(animate);
   render(time);
 }
