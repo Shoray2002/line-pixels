@@ -178,7 +178,8 @@ function init() {
   // scene.add(directionalLight);
 
   // renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  console.log(document.querySelector("#bg"));
+  renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#bg") });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
