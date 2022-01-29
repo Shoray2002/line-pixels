@@ -7,13 +7,19 @@ import grid from "../assets/grid.svg";
 // variables
 let camera, scene, renderer;
 let planeGeo, planeMaterials;
-let cone;
-let locations = [
+let coneGeo;
+let locationsPlanes = [
   [-170, 60, 0],
   [55, 60, 0],
   [175, 60, 0],
   [-75, -60, 0],
   [175, -60, 0],
+];
+let locationsCones = [
+  [55, 60 + 40.5, 0, -Math.PI, 0, 0],
+  [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
+  [-75 + 30.5, -60, 0, Math.PI / 2, 0, Math.PI / 2],
+  [172.5, -60 + 40.5, 0, -Math.PI, 0, 0],
 ];
 let curves = [
   new THREE.CatmullRomCurve3(
@@ -74,7 +80,7 @@ function init() {
   scene.background = texture;
 
   planeGeo = new THREE.BoxGeometry(55, 75);
-  cone = new THREE.ConeGeometry(10, 20, 32);
+  coneGeo = new THREE.ConeGeometry(3, 6);
   planeMaterials = [
     new THREE.MeshLambertMaterial({
       color: 0xffd965,
@@ -98,7 +104,11 @@ function init() {
   for (let i = 0; i < 5; i++) {
     var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
     plane.renderOrder = 1;
-    plane.position.set(locations[i][0], locations[i][1], locations[i][2]);
+    plane.position.set(
+      locationsPlanes[i][0],
+      locationsPlanes[i][1],
+      locationsPlanes[i][2]
+    );
     plane.index = i;
     plane.name = "Plane " + (i + 1);
     scene.add(plane);
@@ -109,26 +119,20 @@ function init() {
     var tube = new THREE.Mesh(tubeGeo, tubeMat);
     tube.renderOrder = 2;
     tube.rotation.x = Math.PI / 2;
+    var cone = new THREE.Mesh(coneGeo, tubeMat);
+    cone.position.set(
+      locationsCones[i][0],
+      locationsCones[i][1],
+      locationsCones[i][2]
+    );
+    cone.rotation.set(
+      locationsCones[i][3],
+      locationsCones[i][4],
+      locationsCones[i][5]
+    );
 
-    scene.add(tube);
+    scene.add(tube, cone);
   }
-  // mats
-
-  // drawing the axes
-  // const points1 = [];
-  // points1.push(new THREE.Vector3(25, 0, 25));
-  // points1.push(new THREE.Vector3(1050, 0, 25));
-  // const lineGeo = new THREE.BufferGeometry().setFromPoints(points1);
-  // const lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
-  // const line = new THREE.Line(lineGeo, lineMat);
-  // const points2 = [];
-  // points2.push(new THREE.Vector3(25, 0, 25));
-  // points2.push(new THREE.Vector3(25, 0, -1000));
-  // const lineGeo2 = new THREE.BufferGeometry().setFromPoints(points2);
-  // const lineMat2 = new THREE.LineBasicMaterial({ color: 0xff0000 });
-  // const line2 = new THREE.Line(lineGeo2, lineMat2);
-  // scene.add(line);
-  // scene.add(line2);
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
