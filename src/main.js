@@ -7,12 +7,52 @@ import grid from "../assets/grid.svg";
 // variables
 let camera, scene, renderer;
 let planeGeo, planeMaterials;
+let cone;
 let locations = [
-  [-15,6, 0],
-  [8, 6, 0],
-  [20, 6, 0],
-  [-5, -6, 0],
-  [20, -6, 0],
+  [-170, 60, 0],
+  [55, 60, 0],
+  [175, 60, 0],
+  [-75, -60, 0],
+  [175, -60, 0],
+];
+let curves = [
+  new THREE.CatmullRomCurve3(
+    [
+      new THREE.Vector3(-170 + 27.5, 0, -60),
+      new THREE.Vector3(-75, 0, -60),
+      new THREE.Vector3(-75, 0, -120),
+      new THREE.Vector3(55, 0, -120),
+      new THREE.Vector3(55, 0, -60 - 37.5),
+    ],
+    false,
+    "catmullrom",
+    0
+  ),
+  new THREE.CatmullRomCurve3(
+    [
+      new THREE.Vector3(55 + 27.5, 0, -60),
+      new THREE.Vector3(175 - 27.5, 0, -60),
+    ],
+    false
+  ),
+
+  new THREE.CatmullRomCurve3(
+    [
+      new THREE.Vector3(55, 0, -60 + 37.5),
+      new THREE.Vector3(55, 0, 60),
+      new THREE.Vector3(-75 + 27.5, 0, 60),
+    ],
+    false,
+    "catmullrom",
+    0
+  ),
+  new THREE.CatmullRomCurve3(
+    [
+      new THREE.Vector3(200 - 27.5, 0, 60 - 37.5),
+      new THREE.Vector3(200 - 27.5, 0, -(60 - 37.5)),
+    ],
+    false
+  ),
 ];
 init();
 
@@ -23,7 +63,7 @@ function init() {
   texture.repeat.set(3, 3);
 
   camera = new THREE.PerspectiveCamera(
-    15,
+    18,
     window.innerWidth / window.innerHeight,
     1,
     100000
@@ -34,7 +74,7 @@ function init() {
   scene.background = texture;
 
   planeGeo = new THREE.BoxGeometry(55, 75);
-  // planeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  cone = new THREE.ConeGeometry(10, 20, 32);
   planeMaterials = [
     new THREE.MeshLambertMaterial({
       color: 0xffd965,
@@ -52,21 +92,26 @@ function init() {
       color: 0x789440,
     }),
   ];
-
+  var tubeMat = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+  });
   for (let i = 0; i < 5; i++) {
     var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
-    plane.renderOrder = 1
-    plane.position.set(
-      locations[i][0] * 10,
-      locations[i][1] * 10,
-      locations[i][2] * 10
-    );
+    plane.renderOrder = 1;
+    plane.position.set(locations[i][0], locations[i][1], locations[i][2]);
+    plane.index = i;
+    plane.name = "Plane " + (i + 1);
     scene.add(plane);
   }
 
-  // plane = new THREE.Mesh(planeGeo, planeMaterials["light_yellow"]);
-  // scene.add(plane);
+  for (let i = 0; i < 4; i++) {
+    var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 0.5, 8, false);
+    var tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.renderOrder = 2;
+    tube.rotation.x = Math.PI / 2;
 
+    scene.add(tube);
+  }
   // mats
 
   // drawing the axes
@@ -88,9 +133,6 @@ function init() {
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
   scene.add(ambientLight);
-  // const directionalLight = new THREE.DirectionalLight(0xffffff);
-  // directionalLight.position.set(1, 0.75, 0.5).normalize();
-  // scene.add(directionalLight);
 
   // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -110,8 +152,6 @@ function init() {
     render();
   });
 }
-
-// event handlers
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
