@@ -2,11 +2,14 @@
   "name": "line-pixels",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview"
   },
   "devDependencies": {
     "vite": "^2.6.4"
+  },
+  "dependencies": {
+    "three": "^0.137.5"
   }
 }
