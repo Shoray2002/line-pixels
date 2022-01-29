@@ -1,23 +1,22 @@
 import "../css/style.css"; //import of css styles
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import grid from "../grid.svg";
-import { lineMP } from "../lineMP.mjs";
+import grid from "../assets/grid.svg";
 // import of mjs module
 
 // variables
 let camera, scene, renderer;
-let plane;
-let rollOverMesh, rollOverMaterial;
-let redMat, redMatmaterial;
-let cubeGeo, cubeMaterial;
-const objects = []; // objects in the scene
-const marked = []; // marked points by the user
-
+let planeGeo, planeMaterials;
+let locations = [
+  [-15,6, 0],
+  [8, 6, 0],
+  [20, 6, 0],
+  [-5, -6, 0],
+  [20, -6, 0],
+];
 init();
 
 function init() {
-  // set up scene and camera
   const texture = new THREE.TextureLoader().load(grid);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
@@ -29,40 +28,46 @@ function init() {
     1,
     100000
   );
-  // set camera position to the front
   camera.position.set(0, 0, 1000);
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
 
-  // roll-over helpers
-  const rollOverGeo = new THREE.PlaneGeometry(55, 75);
-  rollOverGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
-  rollOverMaterial = new THREE.MeshBasicMaterial({
-    color: 0x1ed760,
-    side: THREE.DoubleSide,
-  });
-  rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-  scene.add(rollOverMesh);
+  planeGeo = new THREE.BoxGeometry(55, 75);
+  // planeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -25, 0));
+  planeMaterials = [
+    new THREE.MeshLambertMaterial({
+      color: 0xffd965,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xbf9000,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xfff2cc,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xff9000,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0x789440,
+    }),
+  ];
+
+  for (let i = 0; i < 5; i++) {
+    var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
+    plane.renderOrder = 1
+    plane.position.set(
+      locations[i][0] * 10,
+      locations[i][1] * 10,
+      locations[i][2] * 10
+    );
+    scene.add(plane);
+  }
+
+  // plane = new THREE.Mesh(planeGeo, planeMaterials["light_yellow"]);
+  // scene.add(plane);
 
   // mats
-  redMat = new THREE.PlaneGeometry(50, 50);
-  // redMat.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  redMat.applyMatrix(new THREE.Matrix4().makeTranslation(0, -24, 0));
-  redMatmaterial = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    opacity: 0.9,
-    transparent: true,
-  });
-
-  // cubes
-  cubeGeo = new THREE.BoxGeometry(50, 12.5, 50);
-  cubeGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
-  cubeMaterial = new THREE.MeshLambertMaterial({
-    color: 0xe6ff3e,
-    opacity: 0.8,
-    transparent: true,
-  });
 
   // drawing the axes
   // const points1 = [];
@@ -81,11 +86,11 @@ function init() {
   // scene.add(line2);
 
   // lights
-  const ambientLight = new THREE.AmbientLight(0x606060);
+  const ambientLight = new THREE.AmbientLight(0xffffff);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff);
-  directionalLight.position.set(1, 0.75, 0.5).normalize();
-  scene.add(directionalLight);
+  // const directionalLight = new THREE.DirectionalLight(0xffffff);
+  // directionalLight.position.set(1, 0.75, 0.5).normalize();
+  // scene.add(directionalLight);
 
   // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -93,10 +98,6 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  // controls
-  // document.addEventListener("pointermove", onPointerMove);
-  // document.addEventListener("keydown", onXDown);
-  // document.addEventListener("keydown", onDocumentKeyDown);
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("wheel", (event) => {
     // zoom in and out
