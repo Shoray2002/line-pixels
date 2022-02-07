@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import grid from "../assets/grid.svg";
 import { lineMP } from "./lineMP.mjs";
-// import { lineMP } from "./lineMP.mjs";
 
 // variables
 let camera, scene, renderer;
@@ -17,12 +16,13 @@ let sets = [
   [2, 4, "linear"],
 ];
 let locationsPlanes = [
-  [-170, 60, 0], //1
-  [55, 60, 0], //2
-  [175, 60, 0], //3
-  [-75, -60, 0], //4
-  [175, -60, 0], //5
+  [-170, 60, 0], //0
+  [55, 60, 0], //1
+  [175, 60, 0], //2
+  [-75, -60, 0], //3
+  [175, -60, 0], //4
 ];
+
 // let locationsCones = [
 //   [55, 60 + 40.5, 0, -Math.PI, 0, 0],
 //   [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
@@ -155,7 +155,6 @@ function init() {
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
   scene.add(ambientLight);
-
   // renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
