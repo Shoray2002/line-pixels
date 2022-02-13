@@ -20,54 +20,79 @@ let locationsPlanes = [
   [-170, 60, 0], //0
   [55, 60, 0], //1
   [175, 60, 0], //2
-  [54, -60, 0], //3
+  [55, -60, 0], //3
   [175, -60, 0], //4
 ];
+
 // let locationsCones = [
 //   [55, 60 + 40.5, 0, -Math.PI, 0, 0],
 //   [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
 //   [-75 + 30.5, -60, 0, Math.PI / 2, 0, Math.PI / 2],
 //   [172.5, -60 + 40.5, 0, -Math.PI, 0, 0],
 // ];
-let old = [
-  // 0->1
-  new THREE.CatmullRomCurve3(
-    [
-      new THREE.Vector3(-170 + 27.5, 60, 0),
-      new THREE.Vector3(-75, 60, 0),
-      new THREE.Vector3(-75, 120, 0),
-      new THREE.Vector3(55, 120, 0),
-      new THREE.Vector3(55, 60 + 37.5, 0),
-    ],
-    false,
-    "catmullrom",
-    0
-  ),
-  // 1->2
-  new THREE.CatmullRomCurve3(
-    [new THREE.Vector3(55 + 27.5, 60, 0), new THREE.Vector3(175 - 27.5, 60, 0)],
-    false
-  ),
-  // 1->3
-  new THREE.CatmullRomCurve3(
-    [
-      new THREE.Vector3(55, 60 - 37.5, 0),
-      new THREE.Vector3(55, -60, 0),
-      new THREE.Vector3(-75 + 27.5, -60, 0),
-    ],
-    false,
-    "catmullrom",
-    0
-  ),
-  // 2->4
-  new THREE.CatmullRomCurve3(
-    [
-      new THREE.Vector3(200 - 27.5, -60 + 37.5, 0),
-      new THREE.Vector3(200 - 27.5, 60 - 37.5, 0),
-    ],
-    false
-  ),
-];
+
+function init() {
+  const texture = new THREE.TextureLoader().load(grid);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3, 3);
+  camera = new THREE.PerspectiveCamera(
+    18,
+    window.innerWidth / window.innerHeight,
+    1,
+    100000
+  );
+  camera.position.set(0, 0, 1000);
+  camera.lookAt(0, 0, 0);
+  scene = new THREE.Scene();
+  scene.background = texture;
+  // lights
+  const ambientLight = new THREE.AmbientLight(0xffffff);
+  scene.add(ambientLight);
+  // renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  window.addEventListener("resize", onWindowResize);
+  window.addEventListener("wheel", (event) => {
+    // zoom in and out
+    if (event.deltaY < 0) {
+      camera.fov -= 2;
+    } else {
+      camera.fov += 2;
+    }
+    camera.updateProjectionMatrix();
+    render();
+  });
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  render();
+}
+
+// render the scene
+function render() {
+  renderer.render(scene, camera);
+}
+
+// animate the scene
+function animate() {
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 1;
+  controls.enableZoom = false;
+  controls.enableRotate = false;
+  controls.panSpeed = 0.1;
+  controls.update();
+  requestAnimationFrame(animate);
+  render();
+}
+
 function drawTubes() {
   var tubeMat = new THREE.MeshLambertMaterial({
     color: 0xffffff,
@@ -138,72 +163,8 @@ function drawPlanes() {
     scene.add(plane);
   }
 }
+
 init();
-
-function init() {
-  const texture = new THREE.TextureLoader().load(grid);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(3, 3);
-  camera = new THREE.PerspectiveCamera(
-    18,
-    window.innerWidth / window.innerHeight,
-    1,
-    100000
-  );
-  camera.position.set(0, 0, 1000);
-  camera.lookAt(0, 0, 0);
-  scene = new THREE.Scene();
-  scene.background = texture;
-
-  drawPlanes();
-  drawTubes();
-
-  // lights
-  const ambientLight = new THREE.AmbientLight(0xffffff);
-  scene.add(ambientLight);
-  // renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  window.addEventListener("resize", onWindowResize);
-  window.addEventListener("wheel", (event) => {
-    // zoom in and out
-    if (event.deltaY < 0) {
-      camera.fov -= 2;
-    } else {
-      camera.fov += 2;
-    }
-    camera.updateProjectionMatrix();
-    render();
-  });
-}
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  render();
-}
-
-// render the scene
-function render() {
-  renderer.render(scene, camera);
-}
-
-// animate the scene
-function animate() {
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 1;
-  controls.enableZoom = false;
-  controls.enableRotate = false;
-  controls.panSpeed = 0.1;
-  controls.update();
-  requestAnimationFrame(animate);
-  render();
-}
-
+drawPlanes();
+drawTubes();
 animate();

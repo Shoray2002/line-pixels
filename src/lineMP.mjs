@@ -1,4 +1,3 @@
-// @collapse
 import { Vector3 } from "three";
 const height = 75 / 2;
 const width = 55 / 2;
