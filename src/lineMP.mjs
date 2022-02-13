@@ -95,13 +95,13 @@ function curvedLine(plane1, plane2) {
   let diffy = Math.abs(plane1[1] - plane2[1]);
   let vec = [];
   if (plane1[1] > plane2[1]) {
-    if (plane1[0] > plane2[0] && diffx > width * 2) {
+    if (plane1[0] > plane2[0] && diffy > height) {
       vec = [
         new Vector3(plane1[0], plane1[1] - height, plane1[2]),
         new Vector3(plane1[0], plane2[1], plane2[2]),
         new Vector3(plane2[0] + width, plane2[1], plane2[2]),
       ];
-    } else if (plane1[0] < plane2[0] && diffx > width * 2) {
+    } else if (plane1[0] < plane2[0] && diffy > height) {
       vec = [
         new Vector3(plane1[0], plane1[1] - height, plane1[2]),
         new Vector3(plane1[0], plane2[1], plane2[2]),
@@ -109,18 +109,20 @@ function curvedLine(plane1, plane2) {
       ];
     } else {
       vec = [
-        new Vector3(plane1[0], plane1[1] - height, plane1[2]),
-        new Vector3(plane2[0], plane2[1] + height, plane2[2]),
+        new Vector3(plane1[0], plane1[1] + height, plane1[2]),
+        new Vector3(plane1[0], plane1[1] + diffy / 2, plane1[2]),
+        new Vector3(plane2[0], plane2[1] - diffy / 2, plane2[2]),
+        new Vector3(plane2[0], plane2[1] - height, plane2[2]),
       ];
     }
   } else if (plane1[1] < plane2[1]) {
-    if (plane1[0] > plane2[0] && diffy > height * 2) {
+    if (plane1[0] > plane2[0] && diffx > width) {
       vec = [
         new Vector3(plane1[0], plane1[1] + height, plane1[2]),
         new Vector3(plane1[0], plane2[1], plane2[2]),
         new Vector3(plane2[0] + width, plane2[1], plane2[2]),
       ];
-    } else if (plane1[0] < plane2[0] && diffy > height * 2) {
+    } else if (plane1[0] < plane2[0] && diffx > width) {
       vec = [
         new Vector3(plane1[0], plane1[1] + height, plane1[2]),
         new Vector3(plane1[0], plane2[1], plane2[2]),
@@ -129,6 +131,8 @@ function curvedLine(plane1, plane2) {
     } else {
       vec = [
         new Vector3(plane1[0], plane1[1] + height, plane1[2]),
+        new Vector3(plane1[0], plane1[1] + diffy / 2, plane1[2]),
+        new Vector3(plane2[0], plane2[1] - diffy / 2, plane2[2]),
         new Vector3(plane2[0], plane2[1] - height, plane2[2]),
       ];
     }
@@ -140,7 +144,7 @@ function curvedLine(plane1, plane2) {
       ];
     } else if (plane1[0] < plane2[0]) {
       vec = [
-        new Vector3(plane1[0], plane1[1], plane1[2]),
+        new Vector3(plane1[0] + width, plane1[1], plane1[2]),
         new Vector3(plane2[0] - width, plane2[1], plane2[2]),
       ];
     }
