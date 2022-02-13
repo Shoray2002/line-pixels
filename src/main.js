@@ -20,7 +20,6 @@ let locationsPlanes = [
   [-170, 60, 0], //0
   [55, 60, 0], //1
   [175, 60, 0], //2
-  // [-155, -60, 0], //3
   [54, -60, 0], //3
   [175, -60, 0], //4
 ];
@@ -69,24 +68,41 @@ let old = [
     false
   ),
 ];
-init();
+function drawTubes() {
+  var tubeMat = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+  });
+  sets.forEach((set) => {
+    let curve = new THREE.CatmullRomCurve3(
+      lineMP(locationsPlanes[set[0]], locationsPlanes[set[1]], set[2]),
+      false,
+      "catmullrom",
+      0
+    );
+    curves.push(curve);
+  });
 
-function init() {
-  const texture = new THREE.TextureLoader().load(grid);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(3, 3);
-  camera = new THREE.PerspectiveCamera(
-    18,
-    window.innerWidth / window.innerHeight,
-    1,
-    100000
-  );
-  camera.position.set(0, 0, 1000);
-  camera.lookAt(0, 0, 0);
-  scene = new THREE.Scene();
-  scene.background = texture;
+  for (let i = 0; i < sets.length; i++) {
+    var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 0.5, 8, false);
+    var tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.renderOrder = 2;
+    // tube.rotation.x = Math.PI / 2;
+    // var cone = new THREE.Mesh(coneGeo, tubeMat);
+    // cone.position.set(
+    //   locationsCones[i][0],
+    //   locationsCones[i][1],
+    //   locationsCones[i][2]
+    // );
+    // cone.rotation.set(
+    //   locationsCones[i][3],
+    //   locationsCones[i][4],
+    //   locationsCones[i][5]
+    // );
 
+    scene.add(tube);
+  }
+}
+function drawPlanes() {
   planeGeo = new THREE.BoxGeometry(55, 75);
   coneGeo = new THREE.ConeGeometry(3, 6);
   planeMaterials = [
@@ -109,9 +125,6 @@ function init() {
       color: 0x456880,
     }),
   ];
-  var tubeMat = new THREE.MeshLambertMaterial({
-    color: 0xffffff,
-  });
   for (let i = 0; i < 5; i++) {
     var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
     plane.renderOrder = 1;
@@ -124,37 +137,27 @@ function init() {
     plane.name = "Plane " + (i + 1);
     scene.add(plane);
   }
+}
+init();
 
-  sets.forEach((set) => {
-    let curve = new THREE.CatmullRomCurve3(
-      lineMP(locationsPlanes[set[0]], locationsPlanes[set[1]], set[2]),
-      false,
-      "catmullrom",
-      0
-    );
-    curves.push(curve);
-  });
-  console.log(curves);
+function init() {
+  const texture = new THREE.TextureLoader().load(grid);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3, 3);
+  camera = new THREE.PerspectiveCamera(
+    18,
+    window.innerWidth / window.innerHeight,
+    1,
+    100000
+  );
+  camera.position.set(0, 0, 1000);
+  camera.lookAt(0, 0, 0);
+  scene = new THREE.Scene();
+  scene.background = texture;
 
-  for (let i = 0; i < sets.length; i++) {
-    var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 0.5, 8, false);
-    var tube = new THREE.Mesh(tubeGeo, tubeMat);
-    tube.renderOrder = 2;
-    // tube.rotation.x = Math.PI / 2;
-    // var cone = new THREE.Mesh(coneGeo, tubeMat);
-    // cone.position.set(
-    //   locationsCones[i][0],
-    //   locationsCones[i][1],
-    //   locationsCones[i][2]
-    // );
-    // cone.rotation.set(
-    //   locationsCones[i][3],
-    //   locationsCones[i][4],
-    //   locationsCones[i][5]
-    // );
-
-    scene.add(tube);
-  }
+  drawPlanes();
+  drawTubes();
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
