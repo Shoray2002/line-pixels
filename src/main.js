@@ -12,14 +12,16 @@ let curves = [];
 let sets = [
   [0, 1, "linear"],
   [1, 2, "linear"],
-  [1, 3, "linear"],
-  [2, 4, "linear"],
+  [1, 3, "curved"],
+  [2, 4, "curved"],
+  // [1, 4, "curved"],
 ];
 let locationsPlanes = [
   [-170, 60, 0], //0
   [55, 60, 0], //1
   [175, 60, 0], //2
-  [-175, -60, 0], //3
+  // [-155, -60, 0], //3
+  [54, -60, 0], //3
   [175, -60, 0], //4
 ];
 // let locationsCones = [
@@ -103,6 +105,9 @@ function init() {
     new THREE.MeshLambertMaterial({
       color: 0x789440,
     }),
+    new THREE.MeshLambertMaterial({
+      color: 0x456880,
+    }),
   ];
   var tubeMat = new THREE.MeshLambertMaterial({
     color: 0xffffff,
@@ -131,7 +136,7 @@ function init() {
   });
   console.log(curves);
 
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < sets.length; i++) {
     var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 0.5, 8, false);
     var tube = new THREE.Mesh(tubeGeo, tubeMat);
     tube.renderOrder = 2;
