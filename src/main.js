@@ -26,12 +26,6 @@ let locationsPlanes = [
   [175, -60, 0], //4
 ];
 
-let locationsCones = [
-  [55, 60 + 40.5, 0, -Math.PI, 0, 0],
-  [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
-  [-75 + 30.5, -60, 0, Math.PI / 2, 0, Math.PI / 2],
-  [175, -60 + 40.5, 0, -Math.PI, 0, 0],
-];
 
 function init() {
   const texture = new THREE.TextureLoader().load(grid);
@@ -44,7 +38,7 @@ function init() {
     1,
     100000
   );
-  camera.position.set(0, 0, 1500);
+  camera.position.set(0, 0, 1000);
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
@@ -95,6 +89,39 @@ function animate() {
   render();
 }
 
+function drawPlanes() {
+  planeGeo = new THREE.BoxGeometry(55, 75);
+  coneGeo = new THREE.ConeGeometry(3, 6);
+  planeMaterials = [
+    new THREE.MeshLambertMaterial({
+      color: 0xffd965,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xbf9000,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xfff2cc,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0xff9000,
+    }),
+    new THREE.MeshLambertMaterial({
+      color: 0x789440,
+    })
+  ];
+  for (let i = 0; i < 5; i++) {
+    var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
+    plane.renderOrder = 1;
+    plane.position.set(
+      locationsPlanes[i][0],
+      locationsPlanes[i][1],
+      locationsPlanes[i][2]
+    );
+    plane.index = i;
+    plane.name = "Plane " + (i + 1);
+    scene.add(plane);
+  }
+}
 function drawTubes() {
   var tubeMat = new THREE.MeshLambertMaterial({
     color: 0xffffff,
@@ -132,42 +159,7 @@ function drawTubes() {
     scene.add(tube);
   }
 }
-function drawPlanes() {
-  planeGeo = new THREE.BoxGeometry(55, 75);
-  coneGeo = new THREE.ConeGeometry(3, 6);
-  planeMaterials = [
-    new THREE.MeshLambertMaterial({
-      color: 0xffd965,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0xbf9000,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0xfff2cc,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0xff9000,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0x789440,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0x456880,
-    }),
-  ];
-  for (let i = 0; i < 5; i++) {
-    var plane = new THREE.Mesh(planeGeo, planeMaterials[i]);
-    plane.renderOrder = 1;
-    plane.position.set(
-      locationsPlanes[i][0],
-      locationsPlanes[i][1],
-      locationsPlanes[i][2]
-    );
-    plane.index = i;
-    plane.name = "Plane " + (i + 1);
-    scene.add(plane);
-  }
-}
+
 
 init();
 drawPlanes();

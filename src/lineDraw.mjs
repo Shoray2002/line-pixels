@@ -10,7 +10,6 @@ function lineDraw(plane1, plane2, type = "linear", direction) {
   } else if (type == "curved") {
     vec = curvedLine(plane1, plane2);
   }
-  // get last element of vector
   arrow.push(vec[vec.length - 1]);
   if (direction === "up") {
     arrow.push([0, 0, 0]);
@@ -21,7 +20,6 @@ function lineDraw(plane1, plane2, type = "linear", direction) {
   } else if (direction === "right") {
     arrow.push([Math.PI / 2, 0, -Math.PI / 2]);
   }
-
   return [vec, arrow];
 }
 
@@ -64,6 +62,7 @@ function straightLine(plane1, plane2) {
       ];
     }
   } else {
+    //diagonal
     if (plane1[1] > plane2[1]) {
       let diff = plane1[1] - plane2[1];
       if (diff < height * 2 && plane1[0] > plane2[0]) {
