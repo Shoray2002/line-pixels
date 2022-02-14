@@ -2,7 +2,7 @@ import "../css/style.css"; //import of css styles
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import grid from "../assets/grid.svg";
-import { lineMP } from "./lineMP.mjs";
+import { lineDraw } from "./lineDraw.mjs";
 
 // variables
 let camera, scene, renderer;
@@ -13,7 +13,7 @@ let sets = [
   [1, 0, "curved"],
   [1, 2, "linear"],
   [1, 3, "curved"],
-  [2, 4, "linear"],
+  [2, 4, "curved"],
   // [1, 4, "curved"],
   // [0, 3, "curved"],
 ];
@@ -21,7 +21,7 @@ let locationsPlanes = [
   [-170, 60, 0], //0
   [55, 60, 0], //1
   [175, 60, 0], //2
-  [-55, -60, 0], //3
+  [-75, -60, 0], //3
   [175, -60, 0], //4
 ];
 
@@ -43,7 +43,7 @@ function init() {
     1,
     100000
   );
-  camera.position.set(0, 0, 2000);
+  camera.position.set(0, 0, 1000);
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
@@ -100,7 +100,7 @@ function drawTubes() {
   });
   sets.forEach((set) => {
     let curve = new THREE.CatmullRomCurve3(
-      lineMP(locationsPlanes[set[0]], locationsPlanes[set[1]], set[2]),
+      lineDraw(locationsPlanes[set[0]], locationsPlanes[set[1]], set[2]),
       false,
       "catmullrom",
       0
