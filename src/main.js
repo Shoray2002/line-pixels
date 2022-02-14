@@ -10,17 +10,17 @@ let planeGeo, planeMaterials;
 let coneGeo;
 let curves = [];
 let sets = [
-  [0, 1, "curved"],
+  [1, 0, "curved"],
   [1, 2, "curved"],
   [1, 3, "curved"],
-  [2, 4, "linear"],
-  // [1, 4, "curved"],
-  [0, 3, "curved"],
+  // [2, 4, "linear"],
+  [1, 4, "curved"],
+  // [0, 3, "curved"],
 ];
 let locationsPlanes = [
   [-170, 60, 0], //0
   [55, 60, 0], //1
-  [175, 60, 0], //2
+  [55, 180, 0], //2
   [-55, -60, 0], //3
   [175, -60, 0], //4
 ];

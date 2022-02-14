@@ -139,13 +139,27 @@ function curvedLine(plane1, plane2) {
   } else {
     if (plane1[0] >= plane2[0]) {
       vec = [
-        new Vector3(plane1[0], plane1[1], plane1[2]),
+        new Vector3(plane1[0], plane1[1] + height, plane1[2]),
+        new Vector3(plane1[0], plane1[1] + 2 * height, plane1[2]),
+        new Vector3(
+          (plane1[0] + plane2[0]) / 2,
+          plane1[1] + 2 * height,
+          plane1[2]
+        ),
+        new Vector3((plane1[0] + plane2[0]) / 2, plane2[1], plane2[2]),
         new Vector3(plane2[0] + width, plane2[1], plane2[2]),
       ];
     } else if (plane1[0] < plane2[0]) {
       vec = [
         new Vector3(plane1[0] + width, plane1[1], plane1[2]),
-        new Vector3(plane2[0] - width, plane2[1], plane2[2]),
+        new Vector3((plane1[0] + plane2[0]) / 2, plane1[1], plane1[2]),
+        new Vector3(
+          (plane1[0] + plane2[0]) / 2,
+          plane2[1] + 2 * height,
+          plane2[2]
+        ),
+        new Vector3(plane2[0], plane2[1] + 2 * height, plane2[2]),
+        new Vector3(plane2[0], plane2[1] + height, plane2[2]),
       ];
     }
   }
