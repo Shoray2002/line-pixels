@@ -9,11 +9,12 @@ let camera, scene, renderer;
 let planeGeo, planeMaterials;
 let coneGeo;
 let curves = [];
+let arrows = [];
 let sets = [
-  [1, 0, "curved"],
-  [1, 2, "linear"],
-  [1, 3, "curved"],
-  [2, 4, "curved"],
+  [0, 1, "curved", "down"],
+  [1, 2, "linear", "right"],
+  [1, 3, "curved", "left"],
+  [2, 4, "curved", "down"],
   // [1, 4, "curved"],
   // [0, 3, "curved"],
 ];
@@ -25,12 +26,12 @@ let locationsPlanes = [
   [175, -60, 0], //4
 ];
 
-// let locationsCones = [
-//   [55, 60 + 40.5, 0, -Math.PI, 0, 0],
-//   [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
-//   [-75 + 30.5, -60, 0, Math.PI / 2, 0, Math.PI / 2],
-//   [172.5, -60 + 40.5, 0, -Math.PI, 0, 0],
-// ];
+let locationsCones = [
+  [55, 60 + 40.5, 0, -Math.PI, 0, 0],
+  [175 - 30.5, 60, 0, Math.PI / 2, 0, -Math.PI / 2],
+  [-75 + 30.5, -60, 0, Math.PI / 2, 0, Math.PI / 2],
+  [175, -60 + 40.5, 0, -Math.PI, 0, 0],
+];
 
 function init() {
   const texture = new THREE.TextureLoader().load(grid);
@@ -43,7 +44,7 @@ function init() {
     1,
     100000
   );
-  camera.position.set(0, 0, 1000);
+  camera.position.set(0, 0, 1500);
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
@@ -99,31 +100,34 @@ function drawTubes() {
     color: 0xffffff,
   });
   sets.forEach((set) => {
-    let curve = new THREE.CatmullRomCurve3(
-      lineDraw(locationsPlanes[set[0]], locationsPlanes[set[1]], set[2]),
-      false,
-      "catmullrom",
-      0
+    let x = lineDraw(
+      locationsPlanes[set[0]],
+      locationsPlanes[set[1]],
+      set[2],
+      set[3]
     );
+    let curve = new THREE.CatmullRomCurve3(x[0], false, "catmullrom", 0);
+    arrows.push(x[1]);
     curves.push(curve);
   });
-
+  console.log(arrows)
   for (let i = 0; i < sets.length; i++) {
     var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 0.5, 8, false);
     var tube = new THREE.Mesh(tubeGeo, tubeMat);
     tube.renderOrder = 2;
-    // tube.rotation.x = Math.PI / 2;
-    // var cone = new THREE.Mesh(coneGeo, tubeMat);
-    // cone.position.set(
-    //   locationsCones[i][0],
-    //   locationsCones[i][1],
-    //   locationsCones[i][2]
-    // );
-    // cone.rotation.set(
-    //   locationsCones[i][3],
-    //   locationsCones[i][4],
-    //   locationsCones[i][5]
-    // );
+    var cone = new THREE.Mesh(coneGeo, tubeMat);
+    cone.position.set(
+      arrows[i][0]['x'],
+      arrows[i][0]['y'],
+      0
+    );
+    cone.rotation.set(
+      arrows[i][1][0],
+      arrows[i][1][1],
+      arrows[i][1][2],
+    );
+    cone.renderOrder = 2;
+    scene.add(cone);
 
     scene.add(tube);
   }

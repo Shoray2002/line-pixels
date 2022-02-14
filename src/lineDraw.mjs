@@ -2,12 +2,27 @@ import { Vector3 } from "three";
 const height = 75 / 2;
 const width = 55 / 2;
 
-function lineDraw(plane1, plane2, type = "linear") {
+function lineDraw(plane1, plane2, type = "linear", direction) {
+  let vec = [];
+  let arrow = [];
   if (type === "linear") {
-    return straightLine(plane1, plane2);
+    vec = straightLine(plane1, plane2);
   } else if (type == "curved") {
-    return curvedLine(plane1, plane2);
+    vec = curvedLine(plane1, plane2);
   }
+  // get last element of vector
+  arrow.push(vec[vec.length - 1]);
+  if (direction === "up") {
+    arrow.push([0, 0, 0]);
+  } else if (direction === "down") {
+    arrow.push([-Math.PI, 0, 0]);
+  } else if (direction === "left") {
+    arrow.push([Math.PI / 2, 0, Math.PI / 2]);
+  } else if (direction === "right") {
+    arrow.push([Math.PI / 2, 0, -Math.PI / 2]);
+  }
+
+  return [vec, arrow];
 }
 
 function straightLine(plane1, plane2) {
@@ -163,7 +178,6 @@ function curvedLine(plane1, plane2) {
       ];
     }
   }
-
 
   return vec;
 }
