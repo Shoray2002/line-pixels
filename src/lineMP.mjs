@@ -163,6 +163,8 @@ function curvedLine(plane1, plane2) {
       ];
     }
   }
+
+
   return vec;
 }
 
