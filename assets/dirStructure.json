@@ -2,109 +2,115 @@
   "root": {
     "type": "folder",
     "children": 11,
-    "1": {
+    "0": {
       "name": "folder1_1",
       "type": "folder",
       "children": 2,
-      "1": {
+      "0": {
         "name": "folder2_1",
         "type": "folder",
         "children": 2,
-        "1": {
+        "0": {
           "name": "folder3_1",
           "type": "folder",
           "children": 1,
-          "1": {
+          "0": {
             "name": "Text file filled on root 2.txt",
             "type": "file",
             "children": 0
           }
         },
-        "2": {
+        "1": {
           "name": "folder3_2",
           "type": "folder",
           "children": 1,
-          "1": {
+          "0": {
             "name": "Text file filled randomly.txt",
             "type": "file",
             "children": 0
           }
         }
       },
-      "2": {
-        "folder2_2": {
+      "1": {
+        "name": "folder2_2",
+        "type": "folder",
+        "children": 1,
+        "0": {
+          "name": "folder3_3",
           "type": "folder",
           "children": 1,
-          "1": {
-            "name": "folder3_3",
-            "type": "folder",
-            "children": 1,
-            "1": {
-              "name": "A very long text file filled randomly.txt",
-              "type": "file",
-              "children": 0
-            }
+          "0": {
+            "name": "A very long text file filled randomly.txt",
+            "type": "file",
+            "children": 0
           }
         }
       }
     },
-
-    "2": {
+    "1": {
       "name": "folder1_2",
+      "type": "folder",
+      "children": 1,
+      "0": {
+        "name": "folder2_3",
         "type": "folder",
         "children": 1,
-        "1":{
-        "folder2_3": {
-          "type": "folder",
-          "children": 1,
-          "Text file filled on root 1.txt": {
-            "type": "file",
-            "children": 0
-          }
-        }}
+        "0": {
+          "name": "Text file filled on root 1.txt",
+          "type": "file",
+          "children": 0
+        }
+      }
+    },
+    "2": {
+      "name": "folder1_3",
+      "type": "folder",
+      "children": 5,
+      "0": {
+        "name": "moved Folder from root",
+        "type": "folder",
+        "children": 2,
+        "0": {
+          "name": "File Moved with Folder 1.txt.txt",
+          "type": "file",
+          "children": 0
+        },
+        "1": {
+          "name": "File Moved with Folder 2.txt.txt",
+          "type": "file",
+          "children": 0
+        }
+      },
+      "1": {
+        "name": "A file with versioning.txt",
+        "type": "file",
+        "children": 0
+      },
+      "2": {
+        "name": "Crypted File.txt",
+        "type": "file",
+        "children": 0
+      },
+      "3": {
+        "name": "Crypted and Decrypted File.txt",
+        "type": "file",
+        "children": 0
+      },
+      "4": {
+        "name": "File Moved from root to folder1_3.txt",
+        "type": "file",
+        "children": 0
       }
     },
     "3": {
-      "folder1_3": {
-        "type": "folder",
-        "children": 5,
-        "moved Folder from root": {
-          "type": "folder",
-          "children": 2,
-          "File Moved with Folder 1.txt": {
-            "type": "file",
-            "children": 0
-          },
-          "File Moved with Folder 2.txt": {
-            "type": "file",
-            "children": 0
-          }
-        },
-        "A file with versioning.txt": {
-          "type": "file",
-          "children": 0
-        },
-        "Crypted File.txt": {
-          "type": "file",
-          "children": 0
-        },
-        "Crypted and Decrypted File.txt": {
-          "type": "file",
-          "children": 0
-        },
-        "File Moved from root to folder1_3.txt": {
-          "type": "file",
-          "children": 0
-        }
-      }
-    },
-    "4": {
-      "restoredFolder1_3": {
+      "name": "restoredFolder1_2",
+      "type": "folder",
+      "children": 1,
+      "0": {
+        "name": "restoredFolder2_3",
         "type": "folder",
         "children": 1,
-        "restoredFolder2_3": {
-          "type": "folder",
-          "children": 1,
+        "0": {
           "File Restored 1.txt": {
             "type": "file",
             "children": 0
@@ -112,59 +118,55 @@
         }
       }
     },
-    "5": {
-      "LampFlower": {
+    "4": {
+      "name": "LampFlower.obj",
+      "type": "folder",
+      "children": 2,
+      "0": {
+        "name": "_MACOSX",
         "type": "folder",
-        "children": 2,
-        "_MACOSX": {
-          "type": "folder",
-          "children": 1,
-          "._LampFlower.obj": {
-            "type": "file",
-            "children": 0
-          }
-        },
-        "LampFlower.obj": {
+        "children": 1,
+        "0": {
+          "name": "._LampFlower.obj",
           "type": "file",
           "children": 0
         }
+      },
+      "1": {
+        "name": "LampFlower.obj",
+        "type": "file",
+        "children": 0
       }
+    },
+    "5": {
+      "name": "just a file with a very long name that gonna overflow.txt",
+      "type": "file",
+      "children": 0
     },
     "6": {
-      "just a file with a very long name that gonna overflow.txt": {
-        "type": "file",
-        "children": 0
-      }
+      "name": "EmptyFile on root 1.txt",
+      "type": "file",
+      "children": 0
     },
     "7": {
-      "EmptyFile on root 1.txt": {
-        "type": "file",
-        "children": 0
-      }
+      "name": "EmptyFile on root 2.txt",
+      "type": "file",
+      "children": 0
     },
     "8": {
-      "EmptyFile on root 2.txt": {
-        "type": "file",
-        "children": 0
-      }
+      "name": "File moved from folder1_2 to root.txt",
+      "type": "file",
+      "children": 0
     },
     "9": {
-      "File moved from folder1_2 to root.txt": {
-        "type": "file",
-        "children": 0
-      }
+      "name": "Logitech Gaming Config.jpg",
+      "type": "file",
+      "children": 0
     },
     "10": {
-      "Logitech Gaming Config.jpg": {
-        "type": "file",
-        "children": 0
-      }
-    },
-    "11": {
-      "file with thumbnail.png": {
-        "type": "file",
-        "children": 0
-      }
+      "name": "file with thumbnail.png",
+      "type": "file",
+      "children": 0
     }
   }
 }
