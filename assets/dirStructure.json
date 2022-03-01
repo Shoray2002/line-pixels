@@ -1,5 +1,6 @@
 {
   "root": {
+    "name": "root",
     "type": "folder",
     "children": 11,
     "0": {
@@ -111,10 +112,9 @@
         "type": "folder",
         "children": 1,
         "0": {
-          "File Restored 1.txt": {
-            "type": "file",
-            "children": 0
-          }
+          "name": "File Restored 1.txt",
+          "type": "file",
+          "children": 0
         }
       }
     },
