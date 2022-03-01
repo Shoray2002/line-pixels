@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 // import { Text } from "troika-three-text";
 import grid from "../assets/grid.svg";
-// import binMaker from "./binMaker.mjs";
 import dirStructure from "../assets/dirStructure.json";
 
 // variables
@@ -47,7 +46,6 @@ function init() {
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
-  // coneGeo = new THREE.ConeGeometry(3, 6);
   materials = [
     new THREE.MeshLambertMaterial({
       color: 0xe3ff25,
@@ -72,9 +70,10 @@ function init() {
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
   sphere.position.set(0, 0, 0);
   scene.add(sphere);
-  for (let i = 0; i < dirStructure["root"]["children"]; i++) {
-    console.log(dirStructure["root"][i]["children"]);
-  }
+  // for (let i = 0; i < dirStructure["root"]["children"]; i++) {
+  //   console.log(dirStructure["root"][i]["children"]);
+  // }
+  logger(dirStructure["root"]);
 
   {
     // let step = -235;
@@ -154,6 +153,17 @@ function init() {
     camera.updateProjectionMatrix();
     render();
   });
+}
+
+function logger(x) {
+  if (x["children"] === 0) {
+    console.log(x["name"]);
+  } else {
+    for (let i = 0; i < x["children"]; i++) {
+      console.log(x["name"]);
+      logger(x[i]);
+    }
+  }
 }
 
 function onWindowResize() {
