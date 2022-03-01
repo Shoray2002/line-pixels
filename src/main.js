@@ -15,9 +15,7 @@ let coneLocs = [
   [-240, 123, 0],
 ];
 let name;
-// let dir_struture={
 
-// }
 let curves = [
   new THREE.CatmullRomCurve3(
     [new THREE.Vector3(-240, -100, 0), new THREE.Vector3(250, -100, 0)],
