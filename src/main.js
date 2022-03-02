@@ -44,9 +44,7 @@ function init() {
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
   sphere.position.set(0, -100, 0);
   scene.add(sphere);
-  console.log(sphere.position)
   logger(dirStructure["root"], sphere.position, level);
-  
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -96,20 +94,23 @@ function logger(x, loc, level) {
     label.color = color;
     label.maxWidth = 100;
     label.textAlign = "center";
-    label.position.set(-400 + i * 100, level * 20, 0);
+    label.position.set(-420 + i * 100, level * 20 + 30, 0);
     scene.add(label);
-
+    sphere = new THREE.Mesh(sphereGeo, materials[1]);
+    sphere.position.set(-400 + i * 100, level * 20, 0);
+    scene.add(sphere);
     const points = [];
-    console.log(loc);
     points.push(loc);
-    points.push(label.position);
+    points.push(
+      new THREE.Vector3(sphere.position.x, sphere.position.y, sphere.position.z)
+    );
 
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
     const line = new THREE.Line(geometry, lineMat);
     scene.add(line);
 
-    logger(x[i],label.position, level + 5);
+    logger(x[i], sphere.position, level + 5);
   }
 }
 // }
