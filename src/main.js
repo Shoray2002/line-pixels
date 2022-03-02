@@ -9,7 +9,10 @@ import dirStructure from "../assets/dirStructure.json";
 let camera, scene, renderer;
 let sphereGeo, materials;
 let sphere, label;
-
+let level = 1;
+const lineMat = new THREE.LineBasicMaterial({
+  color: 0x0000ff,
+});
 init();
 
 function init() {
@@ -36,23 +39,14 @@ function init() {
       color: 0x00fff3,
     }),
   ];
-  var tubeMat = [
-    new THREE.MeshLambertMaterial({
-      color: 0xff0000,
-      transparent: true,
-      opacity: 0.8,
-    }),
-    new THREE.MeshLambertMaterial({
-      color: 0x00ff00,
-      transparent: true,
-      opacity: 0.8,
-    }),
-  ];
+
   sphereGeo = new THREE.SphereGeometry(3, 32, 32);
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
-  sphere.position.set(0, 0, 0);
+  sphere.position.set(0, -100, 0);
   scene.add(sphere);
-  logger(dirStructure["root"]);
+  console.log(sphere.position)
+  logger(dirStructure["root"], sphere.position, level);
+  
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -77,36 +71,48 @@ function init() {
   });
 }
 
-function logger(x) {
-  if (x["children"] === 0 && x["name"] !== "root") {
-    console.log(x["name"]);
+function logger(x, loc, level) {
+  {
+    // if (x["children"] === 0 && x["name"] !== "root") {
+    //   // console.log(x["name"]);
+    //   label = new Text();
+    //   label.text = x["name"];
+    //   label.fontSize = 10;
+    //   label.color = 0xff0000;
+    //   label.position.set(
+    //     Math.random() * 300 - 150,
+    //     Math.random() * 300 - 150,
+    //     Math.random() * 300 - 150
+    //   );
+    //   // console.log("output"+x["name"]);
+    //   // scene.add(label);
+    // } else {
+  }
+  const color = Math.floor(Math.random() * 0xffffff);
+  for (let i = 0; i < x["children"]; i++) {
     label = new Text();
-      label.text = x["name"];
-      label.fontSize = 10;
-      label.color = 0xfddddd;
-      label.position.set(
-        Math.random() * 300 - 150,
-        Math.random() * 300 - 150,
-        Math.random() * 300 - 150
-      );
-      // scene.add(label);
-  } else {
-    for (let i = 0; i < x["children"]; i++) {
-      console.log(x["name"]);
-      label = new Text();
-      label.text = x["name"];
-      label.fontSize = 10;
-      label.color = 0xfdd999;
-      label.position.set(
-        Math.random() * 200 - 100,
-        Math.random() * 200 - 100,
-        Math.random() * 200 - 100
-      );
-      scene.add(label);
-      logger(x[i]);
-    }
+    label.text = x[i]["name"];
+    label.fontSize = 10;
+    label.color = color;
+    label.maxWidth = 100;
+    label.textAlign = "center";
+    label.position.set(-400 + i * 100, level * 20, 0);
+    scene.add(label);
+
+    const points = [];
+    console.log(loc);
+    points.push(loc);
+    points.push(label.position);
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+    const line = new THREE.Line(geometry, lineMat);
+    scene.add(line);
+
+    logger(x[i],label.position, level + 5);
   }
 }
+// }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;

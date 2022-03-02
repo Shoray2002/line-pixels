@@ -72,12 +72,12 @@
         "type": "folder",
         "children": 2,
         "0": {
-          "name": "File Moved with Folder 1.txt.txt",
+          "name": "File Moved with Folder 1.txt",
           "type": "file",
           "children": 0
         },
         "1": {
-          "name": "File Moved with Folder 2.txt.txt",
+          "name": "File Moved with Folder 2.txt",
           "type": "file",
           "children": 0
         }
