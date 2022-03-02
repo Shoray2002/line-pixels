@@ -1,33 +1,15 @@
 import "../css/style.css"; //import of css styles
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-// import { Text } from "troika-three-text";
+import { Text } from "troika-three-text";
 import grid from "../assets/grid.svg";
 import dirStructure from "../assets/dirStructure.json";
 
 // variables
 let camera, scene, renderer;
 let sphereGeo, materials;
-let sphere;
+let sphere, label;
 
-{
-  //let coneGeo;
-  // let coneLocs = [
-  //   [253, -100, 0],
-  //   [-240, 123, 0],
-  // ];
-  // let name;
-  // let curves = [
-  //   new THREE.CatmullRomCurve3(
-  //     [new THREE.Vector3(-240, -100, 0), new THREE.Vector3(250, -100, 0)],
-  //     false
-  //   ),
-  //   new THREE.CatmullRomCurve3(
-  //     [new THREE.Vector3(-240, -100, 0), new THREE.Vector3(-240, 120, 0)],
-  //     false
-  //   ),
-  // ];
-}
 init();
 
 function init() {
@@ -70,67 +52,7 @@ function init() {
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
   sphere.position.set(0, 0, 0);
   scene.add(sphere);
-  // for (let i = 0; i < dirStructure["root"]["children"]; i++) {
-  //   console.log(dirStructure["root"][i]["children"]);
-  // }
   logger(dirStructure["root"]);
-
-  {
-    // let step = -235;
-    // let material;
-    // for (let i = 0; i < 50; i++) {
-    //   var data = binMaker(i);
-    //   material = planeMaterials[0];
-    //   let size=2;
-    //   var height = data["NetWorth"];
-    //   sphereGeo = new THREE.SphereGeometry(size, 32, 32);
-    //   var point = new THREE.Mesh(sphereGeo, material);
-    //   point.renderOrder = 1;
-    //   point.position.set(step, -100, 0);
-    //   point.translateY(height / 2);
-    //   point.name = data["Name"];
-    //   name = new Text();
-    //   name.text = data["Name"];
-    //   name.fontSize = 5;
-    //   name.fontWeight = "bold";
-    //   name.position.set(step - 2, 90, 0);
-    //   name.rotation.z = Math.PI / 3;
-    //   scene.add(name);
-    //   scene.add(point);
-    //   step += 9.6;
-    // }
-    // for (let i = 0; i < 2; i++) {
-    //   var tubeGeo = new THREE.TubeBufferGeometry(curves[i], 100, 1, 8, false);
-    //   var tube = new THREE.Mesh(tubeGeo, tubeMat[i]);
-    //   tube.renderOrder = 2;
-    //   var cone = new THREE.Mesh(coneGeo, tubeMat[i]);
-    //   cone.renderOrder = 2;
-    //   cone.position.set(coneLocs[i][0], coneLocs[i][1], coneLocs[i][2]);
-    //   if (i == 0) {
-    //     cone.rotation.set(0, 0, -Math.PI / 2);
-    //   }
-    //   scene.add(tube, cone);
-    // }
-    // const xtext = new Text();
-    // xtext.text = "Billionaires";
-    // xtext.fontSize = 15;
-    // xtext.pos = "top";
-    // xtext.position.set(-30, -110, 0);
-    // const ytext = new Text();
-    // ytext.text = "Net Worth";
-    // ytext.fontSize = 15;
-    // ytext.pos = "left";
-    // ytext.position.set(-265, -50, 0);
-    // ytext.rotation.set(0, 0, Math.PI / 2);
-    // scene.add(xtext, ytext);
-    // const explainText = new Text();
-    // explainText.text =
-    //   "If the billionaire is from United States then the dot is blue and bigger";
-    // explainText.fontSize = 10;
-    // explainText.position.set(-140, -140, 0);
-    // explainText.color = 0x00fff3;
-    // scene.add(xtext, ytext, explainText);
-  }
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -156,11 +78,31 @@ function init() {
 }
 
 function logger(x) {
-  if (x["children"] === 0) {
+  if (x["children"] === 0 && x["name"] !== "root") {
     console.log(x["name"]);
+    label = new Text();
+      label.text = x["name"];
+      label.fontSize = 10;
+      label.color = 0xfddddd;
+      label.position.set(
+        Math.random() * 300 - 150,
+        Math.random() * 300 - 150,
+        Math.random() * 300 - 150
+      );
+      // scene.add(label);
   } else {
     for (let i = 0; i < x["children"]; i++) {
       console.log(x["name"]);
+      label = new Text();
+      label.text = x["name"];
+      label.fontSize = 10;
+      label.color = 0xfdd999;
+      label.position.set(
+        Math.random() * 200 - 100,
+        Math.random() * 200 - 100,
+        Math.random() * 200 - 100
+      );
+      scene.add(label);
       logger(x[i]);
     }
   }
