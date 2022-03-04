@@ -93,11 +93,11 @@ function logger(x, loc, level) {
     //   // scene.add(label);
     // } else {
   }
-  let seed=Math.random();
+  let seed = Math.random();
   const pointGroup = new THREE.Group();
   const color = Math.floor(seed * 0xffffff);
   for (let i = 0; i < x["children"]; i++) {
-    let angle = seed * Math.PI * 2;
+    let angle = (i / x["children"]) * Math.PI;
     if (x["children"] > 6) {
       angle = (i / x["children"]) * Math.PI * 2;
     }
@@ -133,11 +133,9 @@ function logger(x, loc, level) {
       )
     );
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(geometry, lineMat);
-    line.material.color.setHex(color);
+    const line = new THREE.Line(geometry, mat);
     // scene.add(line);
     pointGroup.add(line);
-    // pointGroup.position.set(
     scene.add(pointGroup);
     logger(x[i], sphere.position, level * (i + 1));
   }
