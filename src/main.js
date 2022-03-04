@@ -9,7 +9,7 @@ import dirStructure from "../assets/dirStructure.json";
 let camera, scene, renderer;
 let sphereGeo, materials;
 let sphere, label;
-let level = 1;
+let level = 0.5;
 const lineMat = new THREE.LineBasicMaterial({
   color: 0x0000ff,
 });
@@ -25,9 +25,9 @@ function init() {
     18,
     window.innerWidth / window.innerHeight,
     1,
-    100000
+    10000
   );
-  camera.position.set(0, 0, 1100);
+  camera.position.set(0, 0, 1000);
   camera.lookAt(0, 0, 0);
   scene = new THREE.Scene();
   scene.background = texture;
@@ -42,7 +42,7 @@ function init() {
 
   sphereGeo = new THREE.SphereGeometry(3, 32, 32);
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
-  sphere.position.set(0, -100, 0);
+  sphere.position.set(0, -50, 0);
   scene.add(sphere);
   logger(dirStructure["root"], sphere.position, level);
 
@@ -86,31 +86,52 @@ function logger(x, loc, level) {
     //   // scene.add(label);
     // } else {
   }
+  const pointGroup = new THREE.Group();
   const color = Math.floor(Math.random() * 0xffffff);
   for (let i = 0; i < x["children"]; i++) {
+    const angle = (i / x["children"]) * Math.PI * 2;
     label = new Text();
     label.text = x[i]["name"];
     label.fontSize = 10;
     label.color = color;
     label.maxWidth = 100;
     label.textAlign = "center";
-    label.position.set(-420 + i * 100, level * 20 + 30, 0);
-    scene.add(label);
-    sphere = new THREE.Mesh(sphereGeo, materials[1]);
-    sphere.position.set(-400 + i * 100, level * 20, 0);
+    label.position.set(
+      Math.cos(angle) * (level * 100) - 20,
+      level * 80,
+      Math.sin(angle) * (level * 100)
+    );
+    pointGroup.add(label);
+    // scene.add(label);
+    let mat = new THREE.LineBasicMaterial({
+      color: color,
+    });
+    sphere = new THREE.Mesh(sphereGeo, mat);
+    sphere.position.set(
+      Math.cos(angle) * (level * 100),
+      level * 100,
+      Math.sin(angle) * (level * 100)
+    );
+    // distribute all spheres evenly around the sphere
+
+
     scene.add(sphere);
+
     const points = [];
     points.push(loc);
     points.push(
-      new THREE.Vector3(sphere.position.x, sphere.position.y, sphere.position.z)
+      new THREE.Vector3(
+        sphere.position.x,
+        sphere.position.y - 5,
+        sphere.position.z
+      )
     );
-
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
     const line = new THREE.Line(geometry, lineMat);
     scene.add(line);
 
-    logger(x[i], sphere.position, level + 5);
+    logger(x[i], sphere.position, level + 0.5);
   }
 }
 // }
