@@ -40,10 +40,17 @@ function init() {
     }),
   ];
 
-  sphereGeo = new THREE.SphereGeometry(3, 32, 32);
+  sphereGeo = new THREE.SphereGeometry(5, 32, 32);
   sphere = new THREE.Mesh(sphereGeo, materials[0]);
   sphere.position.set(0, -50, 0);
   scene.add(sphere);
+  label = new Text();
+  label.text = "root";
+  label.fontSize = 10;
+  label.color = 0xff0000;
+  label.position.set(0, -70, 0);
+  scene.add(label);
+
   logger(dirStructure["root"], sphere.position, level);
 
   // lights
@@ -86,37 +93,36 @@ function logger(x, loc, level) {
     //   // scene.add(label);
     // } else {
   }
+  let seed=Math.random();
   const pointGroup = new THREE.Group();
-  const color = Math.floor(Math.random() * 0xffffff);
+  const color = Math.floor(seed * 0xffffff);
   for (let i = 0; i < x["children"]; i++) {
-    const angle = (i / x["children"]) * Math.PI * 2;
+    let angle = seed * Math.PI * 2;
+    if (x["children"] > 6) {
+      angle = (i / x["children"]) * Math.PI * 2;
+    }
     label = new Text();
     label.text = x[i]["name"];
     label.fontSize = 10;
-    label.color = color;
+    label.color = color * level;
     label.maxWidth = 100;
     label.textAlign = "center";
     label.position.set(
-      Math.cos(angle) * (level * 100) - 20,
+      Math.cos(angle) * (level * 200) - 20,
       level * 80,
-      Math.sin(angle) * (level * 100)
+      Math.sin(angle) * (level * 200)
     );
-    pointGroup.add(label);
-    // scene.add(label);
+    // pointGroup.add(label);
     let mat = new THREE.LineBasicMaterial({
       color: color,
     });
     sphere = new THREE.Mesh(sphereGeo, mat);
     sphere.position.set(
-      Math.cos(angle) * (level * 100),
+      Math.cos(angle) * (level * 200),
       level * 100,
-      Math.sin(angle) * (level * 100)
+      Math.sin(angle) * (level * 200)
     );
-    // distribute all spheres evenly around the sphere
-
-
-    scene.add(sphere);
-
+    pointGroup.add(sphere);
     const points = [];
     points.push(loc);
     points.push(
@@ -127,11 +133,13 @@ function logger(x, loc, level) {
       )
     );
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
     const line = new THREE.Line(geometry, lineMat);
-    scene.add(line);
-
-    logger(x[i], sphere.position, level + 0.5);
+    line.material.color.setHex(color);
+    // scene.add(line);
+    pointGroup.add(line);
+    // pointGroup.position.set(
+    scene.add(pointGroup);
+    logger(x[i], sphere.position, level * (i + 1));
   }
 }
 // }
