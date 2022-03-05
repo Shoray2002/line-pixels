@@ -35,11 +35,11 @@ function init() {
   scene = new THREE.Scene();
   scene.background = texture;
   materials = [
-    new THREE.MeshLambertMaterial({
-      color: 0xe3ff25,
+    new THREE.LineBasicMaterial({
+      color: 0xff0000,
     }),
-    new THREE.MeshLambertMaterial({
-      color: 0x00fff3,
+    new THREE.LineBasicMaterial({
+      color: 0x00ff00,
     }),
   ];
 
@@ -81,7 +81,6 @@ function init() {
 
 function logger(x, loc, level, angle) {
   const pointGroup = new THREE.Group();
-  console.log(x["children"]);
   // if (x["children"] === 0) {
   //   label = new Text();
   //   label.text = x["name"];
@@ -110,14 +109,16 @@ function logger(x, loc, level, angle) {
       Math.sin(angle) * (level * 200)
     );
     pointGroup.add(label);
-    let mat = new THREE.LineBasicMaterial({
-      color: color,
-    });
-    sphere = new THREE.Mesh(sphereGeo, mat);
+    if (x[i]["type"] === "file") {
+      sphere = new THREE.Mesh(sphereGeo, materials[1]);
+    } else {
+      sphere = new THREE.Mesh(sphereGeo, materials[0]);
+    }
+
     sphere.name = x[i]["name"];
     sphere.position.set(
       Math.cos(angle) * (level * 200),
-      level * 155,
+      level * 122,
       Math.sin(angle) * (level * 200)
     );
     pointGroup.add(sphere);
@@ -131,7 +132,10 @@ function logger(x, loc, level, angle) {
       )
     );
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(geometry, mat);
+    const line = new THREE.Line(
+      geometry,
+      new THREE.LineBasicMaterial({ color })
+    );
     // scene.add(line);
     pointGroup.add(line);
     scene.add(pointGroup);
