@@ -10,6 +10,7 @@ let camera, scene, renderer;
 let sphereGeo, materials;
 let sphere, label;
 let level = 0.5;
+let angle = 0;
 const lineMat = new THREE.LineBasicMaterial({
   color: 0x0000ff,
 });
@@ -28,7 +29,9 @@ function init() {
     10000
   );
   camera.position.set(0, 0, 1000);
-  camera.lookAt(0, 0, 0);
+  // camera.lookAt(0, 0, 0);
+  // look straight
+  camera.lookAt(0, 1500, 0);
   scene = new THREE.Scene();
   scene.background = texture;
   materials = [
@@ -46,12 +49,12 @@ function init() {
   scene.add(sphere);
   label = new Text();
   label.text = "root";
-  label.fontSize = 10;
+  label.fontSize = 15;
   label.color = 0xff0000;
-  label.position.set(0, -70, 0);
+  label.position.set(-13, -60, 0);
   scene.add(label);
 
-  logger(dirStructure["root"], sphere.position, level);
+  logger(dirStructure["root"], sphere.position, level, angle);
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -76,50 +79,45 @@ function init() {
   });
 }
 
-function logger(x, loc, level) {
-  {
-    // if (x["children"] === 0 && x["name"] !== "root") {
-    //   // console.log(x["name"]);
-    //   label = new Text();
-    //   label.text = x["name"];
-    //   label.fontSize = 10;
-    //   label.color = 0xff0000;
-    //   label.position.set(
-    //     Math.random() * 300 - 150,
-    //     Math.random() * 300 - 150,
-    //     Math.random() * 300 - 150
-    //   );
-    //   // console.log("output"+x["name"]);
-    //   // scene.add(label);
-    // } else {
-  }
-  let seed = Math.random();
+function logger(x, loc, level, angle) {
   const pointGroup = new THREE.Group();
+  console.log(x["children"]);
+  // if (x["children"] === 0) {
+  //   label = new Text();
+  //   label.text = x["name"];
+  //   label.fontSize = 10;
+  //   label.color = 0xff0000;
+  //   label.position.set(
+  //     Math.random() * 300 - 150,
+  //     Math.random() * 300 - 150,
+  //     Math.random() * 300 - 150
+  //   );
+  //   pointGroup.add(label);
+  // } else {
+  let seed = Math.random();
   const color = Math.floor(seed * 0xffffff);
   for (let i = 0; i < x["children"]; i++) {
-    let angle = (i / x["children"]) * Math.PI;
-    if (x["children"] > 6) {
-      angle = (i / x["children"]) * Math.PI * 2;
-    }
+    angle = (i / x["children"]) * Math.PI * 2;
     label = new Text();
     label.text = x[i]["name"];
     label.fontSize = 10;
-    label.color = color * level;
+    label.color = 0xe5e5e5;
     label.maxWidth = 100;
     label.textAlign = "center";
     label.position.set(
-      Math.cos(angle) * (level * 200) - 20,
-      level * 80,
+      Math.cos(angle) * (level * 200) - 40,
+      level * 155,
       Math.sin(angle) * (level * 200)
     );
-    // pointGroup.add(label);
+    pointGroup.add(label);
     let mat = new THREE.LineBasicMaterial({
       color: color,
     });
     sphere = new THREE.Mesh(sphereGeo, mat);
+    sphere.name = x[i]["name"];
     sphere.position.set(
       Math.cos(angle) * (level * 200),
-      level * 100,
+      level * 155,
       Math.sin(angle) * (level * 200)
     );
     pointGroup.add(sphere);
@@ -137,7 +135,7 @@ function logger(x, loc, level) {
     // scene.add(line);
     pointGroup.add(line);
     scene.add(pointGroup);
-    logger(x[i], sphere.position, level * (i + 1));
+    logger(x[i], sphere.position, level * (i + 1), angle + 5);
   }
 }
 // }
