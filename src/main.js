@@ -9,7 +9,7 @@ import dirStructure from "../assets/dirStructure.json";
 let camera, scene, renderer;
 let sphereGeo, materials;
 let sphere, label;
-let level = 0.5;
+let level = 1;
 let angle = 0;
 const lineMat = new THREE.LineBasicMaterial({
   color: 0x0000ff,
@@ -46,18 +46,18 @@ function init() {
     }),
   ];
 
-  sphereGeo = new THREE.SphereGeometry(5, 32, 32);
+  sphereGeo = new THREE.SphereGeometry(6, 32, 32);
   sphere = new THREE.Mesh(sphereGeo, materials[2]);
   sphere.position.set(0, 0, 0);
   scene.add(sphere);
   label = new Text();
   label.text = "root";
   label.fontSize = 15;
-  label.color = 0xffe628;
+  label.color = 0x00fff3;
   label.position.set(-15, -5, 0);
   scene.add(label);
 
-  logger(dirStructure["root"], sphere.position, level, angle);
+  drawer(dirStructure["root"], sphere.position, level);
 
   // lights
   const ambientLight = new THREE.AmbientLight(0xffffff);
@@ -82,66 +82,99 @@ function init() {
   });
 }
 
-function logger(x, loc, level, angle) {
+function drawer(x, loc, level) {
   const pointGroup = new THREE.Group();
   // if (x["children"] === 0) {
-  //   label = new Text();
-  //   label.text = x["name"];
-  //   label.fontSize = 10;
-  //   label.color = 0xff0000;
-  //   label.position.set(
-  //     Math.random() * 300 - 150,
-  //     Math.random() * 300 - 150,
-  //     Math.random() * 300 - 150
-  //   );
-  //   pointGroup.add(label);
+  // label = new Text();
+  // label.text = x["name"];
+  // label.fontSize = 10;
+  // label.color = 0xff0000;
+  // label.position.set(
+  //   Math.random() * 300 - 150,
+  //   Math.random() * 300 - 150,
+  //   Math.random() * 300 - 150
+  // );
+  // pointGroup.add(label);
   // } else {
-  let seed = Math.random();
-  const color = Math.floor(seed * 0xffffff);
+  // let seed = Math.random();
+  const color = Math.floor(Math.random() * 0xffffff);
   const vector = new THREE.Vector3();
   for (let i = 0, l = x["children"]; i < l; i++) {
-    angle = (i / x["children"]) * Math.PI * 2;
-
     if (x[i]["type"] === "file") {
       sphere = new THREE.Mesh(sphereGeo, materials[1]);
     } else {
       sphere = new THREE.Mesh(sphereGeo, materials[0]);
     }
     sphere.name = x[i]["name"];
-    const phi = Math.acos(-1 + (2 * i) / l);
-    const theta = Math.sqrt(l * Math.PI) * phi;
+    console.log(sphere.name);
     label = new Text();
     label.text = x[i]["name"];
     label.fontSize = 10;
-    label.color = 0xe5e5e5;
+    label.color = 0xffe628;
     label.maxWidth = 50;
     label.textAlign = "center";
-    sphere.position.setFromSphericalCoords(200, phi, theta);
-    label.position.setFromSphericalCoords(220, phi, theta);
-    vector.copy(sphere.position).multiplyScalar(2);
-    label.lookAt(vector);
-    pointGroup.add(sphere);
-    pointGroup.add(label);
-
     const points = [];
     points.push(loc);
-    points.push(
-      new THREE.Vector3(
-        sphere.position.x,
-        sphere.position.y - 5,
-        sphere.position.z
-      )
-    );
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(
-      geometry,
-      new THREE.LineBasicMaterial({ color })
-    );
-    // scene.add(line);
-    // pointGroup.add(line);
+    if (x["name"] === "root") {
+      const phi = Math.acos(-1 + (2 * i) / l);
+      const theta = Math.sqrt(l * Math.PI) * phi;
+      sphere.position.setFromSphericalCoords(200, phi, theta);
+      label.position.setFromSphericalCoords(220, phi, theta);
+      vector.copy(sphere.position).multiplyScalar(2);
+      label.lookAt(vector);
+      pointGroup.add(sphere);
+      pointGroup.add(label);
+      points.push(
+        new THREE.Vector3(
+          sphere.position.x,
+          sphere.position.y,
+          sphere.position.z
+        )
+      );
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(
+        geometry,
+        new THREE.LineBasicMaterial({ color: 0xb9054e })
+      );
+      pointGroup.add(line);
+    } else {
+      angle = (i / x["children"]) * Math.PI * 2;
+      sphere.position.set(
+        Math.cos(angle) * (sphere.position.x + level * 100),
+        level * 100,
+        Math.sin(angle) * (sphere.position.z + level * 100)
+      );
+      // label.position.set(
+      //   Math.cos(angle) * (level * 200),
+      //   level * 122,
+      //   Math.sin(angle) * (level * 200)
+      // );
+      // vector.copy(sphere.position).multiplyScalar(2);
+      // label.lookAt(vector);
+      // points.push(
+      //   new THREE.Vector3(
+      //     sphere.position.x,
+      //     sphere.position.y,
+      //     sphere.position.z
+      //   )
+      // );
+      // const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      // const line = new THREE.Line(
+      //   geometry,
+      //   new THREE.LineBasicMaterial({ color: color })
+      // );
+      // pointGroup.add(line);
+      pointGroup.add(sphere);
+      // pointGroup.add(label);
+    }
     scene.add(pointGroup);
-    // logger(x[i], sphere.position, level * (i + 1), angle + 5);
   }
+  for (let i = 0, l = x["children"]; i < l; i++) {
+    if (x[i]["children"] > 0) {
+      // drawer(x[i], loc, level + 1);
+    }
+  }
+  // logger(x[i], sphere.position, level * (i + 1), angle + 5);
 }
 // }
 
