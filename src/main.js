@@ -41,17 +41,20 @@ function init() {
     new THREE.LineBasicMaterial({
       color: 0x00ff00,
     }),
+    new THREE.LineBasicMaterial({
+      color: 0xffe628,
+    }),
   ];
 
   sphereGeo = new THREE.SphereGeometry(5, 32, 32);
-  sphere = new THREE.Mesh(sphereGeo, materials[0]);
-  sphere.position.set(0, -50, 0);
+  sphere = new THREE.Mesh(sphereGeo, materials[2]);
+  sphere.position.set(0, 0, 0);
   scene.add(sphere);
   label = new Text();
   label.text = "root";
   label.fontSize = 15;
-  label.color = 0xff0000;
-  label.position.set(-13, -60, 0);
+  label.color = 0xffe628;
+  label.position.set(-15, -5, 0);
   scene.add(label);
 
   logger(dirStructure["root"], sphere.position, level, angle);
@@ -95,33 +98,31 @@ function logger(x, loc, level, angle) {
   // } else {
   let seed = Math.random();
   const color = Math.floor(seed * 0xffffff);
-  for (let i = 0; i < x["children"]; i++) {
+  const vector = new THREE.Vector3();
+  for (let i = 0, l = x["children"]; i < l; i++) {
     angle = (i / x["children"]) * Math.PI * 2;
-    label = new Text();
-    label.text = x[i]["name"];
-    label.fontSize = 10;
-    label.color = 0xe5e5e5;
-    label.maxWidth = 100;
-    label.textAlign = "center";
-    label.position.set(
-      Math.cos(angle) * (level * 200) - 40,
-      level * 155,
-      Math.sin(angle) * (level * 200)
-    );
-    pointGroup.add(label);
+
     if (x[i]["type"] === "file") {
       sphere = new THREE.Mesh(sphereGeo, materials[1]);
     } else {
       sphere = new THREE.Mesh(sphereGeo, materials[0]);
     }
-
     sphere.name = x[i]["name"];
-    sphere.position.set(
-      Math.cos(angle) * (level * 200),
-      level * 122,
-      Math.sin(angle) * (level * 200)
-    );
+    const phi = Math.acos(-1 + (2 * i) / l);
+    const theta = Math.sqrt(l * Math.PI) * phi;
+    label = new Text();
+    label.text = x[i]["name"];
+    label.fontSize = 10;
+    label.color = 0xe5e5e5;
+    label.maxWidth = 50;
+    label.textAlign = "center";
+    sphere.position.setFromSphericalCoords(200, phi, theta);
+    label.position.setFromSphericalCoords(220, phi, theta);
+    vector.copy(sphere.position).multiplyScalar(2);
+    label.lookAt(vector);
     pointGroup.add(sphere);
+    pointGroup.add(label);
+
     const points = [];
     points.push(loc);
     points.push(
@@ -137,9 +138,9 @@ function logger(x, loc, level, angle) {
       new THREE.LineBasicMaterial({ color })
     );
     // scene.add(line);
-    pointGroup.add(line);
+    // pointGroup.add(line);
     scene.add(pointGroup);
-    logger(x[i], sphere.position, level * (i + 1), angle + 5);
+    // logger(x[i], sphere.position, level * (i + 1), angle + 5);
   }
 }
 // }
