@@ -115,7 +115,7 @@ function drawer(x, loc, level) {
     label.textAlign = "center";
     const points = [];
     points.push(loc);
-    vector.copy(loc);
+    vector.copy(loc).multiplyScalar(1.22);
     if (x["name"] === "root") {
       const phi = Math.acos(-1 + (2 * i) / l);
       const theta = Math.sqrt(l * Math.PI) * phi;
@@ -146,15 +146,13 @@ function drawer(x, loc, level) {
         vector.y - level * 100,
         vector.z - Math.sin(angle) * (level * 50)
       );
-
-      // label.position.set(
-      //   Math.cos(angle) * (level * 250),
-      //   level * 115,
-      //   Math.sin(angle) * (level * 250)
-      // );
-      // vector.copy(sphere.position).multiplyScalar(2);
-      // label.lookAt(vector);
-      // cone.add(label);
+      label.position.set(
+        vector.x - Math.cos(angle) * (level * 50),
+        vector.y - level * 100,
+        vector.z - Math.sin(angle) * (level * 50)
+      );
+      vector.copy(sphere.position).multiplyScalar(1.2);
+      label.lookAt(vector);
       points.push(
         new THREE.Vector3(
           sphere.position.x,
@@ -167,12 +165,9 @@ function drawer(x, loc, level) {
         geometry,
         new THREE.LineBasicMaterial({ color: color })
       );
-      // cone.add(line);
-      // cone.add(sphere);
-      // cone.position.set(
+      cone.add(sphere, line, label);
 
-      // );
-      pointGroup.add(sphere, line);
+      pointGroup.add(cone);
     }
     drawer(x[i], sphere.position, level + 1);
     scene.add(pointGroup);
