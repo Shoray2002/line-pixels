@@ -115,6 +115,7 @@ function drawer(x, loc, level) {
     label.textAlign = "center";
     const points = [];
     points.push(loc);
+    vector.copy(loc);
     if (x["name"] === "root") {
       const phi = Math.acos(-1 + (2 * i) / l);
       const theta = Math.sqrt(l * Math.PI) * phi;
@@ -138,43 +139,44 @@ function drawer(x, loc, level) {
       );
       pointGroup.add(line);
     } else {
+      const cone = new THREE.Group();
       angle = (i / x["children"]) * Math.PI * 2;
       sphere.position.set(
-        Math.cos(angle) * (sphere.position.x + level * 100),
-        level * 100,
-        Math.sin(angle) * (sphere.position.z + level * 100)
+        vector.x - Math.cos(angle) * (level * 50),
+        vector.y - level * 100,
+        vector.z - Math.sin(angle) * (level * 50)
       );
+
       // label.position.set(
-      //   Math.cos(angle) * (level * 200),
-      //   level * 122,
-      //   Math.sin(angle) * (level * 200)
+      //   Math.cos(angle) * (level * 250),
+      //   level * 115,
+      //   Math.sin(angle) * (level * 250)
       // );
       // vector.copy(sphere.position).multiplyScalar(2);
       // label.lookAt(vector);
-      // points.push(
-      //   new THREE.Vector3(
-      //     sphere.position.x,
-      //     sphere.position.y,
-      //     sphere.position.z
-      //   )
+      // cone.add(label);
+      points.push(
+        new THREE.Vector3(
+          sphere.position.x,
+          sphere.position.y,
+          sphere.position.z
+        )
+      );
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(
+        geometry,
+        new THREE.LineBasicMaterial({ color: color })
+      );
+      // cone.add(line);
+      // cone.add(sphere);
+      // cone.position.set(
+
       // );
-      // const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      // const line = new THREE.Line(
-      //   geometry,
-      //   new THREE.LineBasicMaterial({ color: color })
-      // );
-      // pointGroup.add(line);
-      pointGroup.add(sphere);
-      // pointGroup.add(label);
+      pointGroup.add(sphere, line);
     }
+    drawer(x[i], sphere.position, level + 1);
     scene.add(pointGroup);
   }
-  for (let i = 0, l = x["children"]; i < l; i++) {
-    if (x[i]["children"] > 0) {
-      // drawer(x[i], loc, level + 1);
-    }
-  }
-  // logger(x[i], sphere.position, level * (i + 1), angle + 5);
 }
 // }
 
