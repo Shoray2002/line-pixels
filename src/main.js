@@ -11,6 +11,9 @@ let sphereGeo, rootGeo, materials;
 let sphere, label;
 let level = 1;
 let angle = 0;
+let objects = [];
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 init();
 
 function init() {
@@ -38,13 +41,18 @@ function init() {
     new THREE.LineBasicMaterial({
       color: 0xffe628,
     }),
+    new THREE.LineBasicMaterial({
+      color: 0xcc25ff,
+    }),
   ];
 
   sphereGeo = new THREE.SphereGeometry(6, 32, 32);
   rootGeo = new THREE.SphereGeometry(10, 32, 32);
   sphere = new THREE.Mesh(rootGeo, materials[2]);
   sphere.position.set(0, 0, 0);
+  sphere.name = "root";
   scene.add(sphere);
+  objects.push(sphere);
   label = new Text();
   label.text = "root";
   label.fontSize = 15;
@@ -74,6 +82,11 @@ function init() {
     }
     camera.updateProjectionMatrix();
     render();
+  });
+  window.addEventListener("click", (event) => onMouseDown(event));
+  // hover
+  window.addEventListener("mousemove", (event) => {
+    onMouseMove(event);
   });
 }
 
@@ -119,13 +132,11 @@ function drawer(x, loc, level) {
         new THREE.LineBasicMaterial({ color: 0xb9054e })
       );
       pointGroup.add(line);
+      objects.push(sphere);
     } else {
       angle = (i / x["children"]) * Math.PI * 2;
       const cone = new THREE.Group();
-      // angle between loc and origin
       const angleLoc = Math.atan2(loc.y, loc.x);
-
-      console.log(angleLoc);
       sphere.position.set(
         loc.x + Math.cos(angle + 10 * angleLoc) * (level * 50),
         loc.y + Math.sin(angle + 10 * angleLoc) * (level * 50),
@@ -151,19 +162,42 @@ function drawer(x, loc, level) {
         new THREE.LineBasicMaterial({ color: color })
       );
       cone.add(sphere, line, label);
+      objects.push(sphere);
       pointGroup.add(cone);
     }
     drawer(x[i], sphere.position, level + 0.5);
   }
   scene.add(pointGroup);
 }
-// }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   render();
+}
+
+function onMouseDown(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(objects);
+  if (intersects.length > 0) {
+    console.log(intersects[0].object.name);
+    intersects[0].object.scale.set(1.2, 1.2, 1.2);
+    intersects[0].object.material = materials[3];
+  }
+}
+function onMouseMove(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(objects);
+  if (intersects.length > 0) {
+    document.body.style.cursor = "pointer";
+  } else {
+    document.body.style.cursor = "default";
+  }
 }
 
 // render the scene
