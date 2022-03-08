@@ -7,13 +7,10 @@ import dirStructure from "../assets/dirStructure.json";
 
 // variables
 let camera, scene, renderer;
-let sphereGeo, materials;
+let sphereGeo, rootGeo, materials;
 let sphere, label;
 let level = 1;
 let angle = 0;
-const lineMat = new THREE.LineBasicMaterial({
-  color: 0x0000ff,
-});
 init();
 
 function init() {
@@ -21,7 +18,6 @@ function init() {
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(3, 3);
-
   camera = new THREE.PerspectiveCamera(
     18,
     window.innerWidth / window.innerHeight,
@@ -29,8 +25,6 @@ function init() {
     10000
   );
   camera.position.set(0, 0, 1000);
-  // camera.lookAt(0, 0, 0);
-  // look straight
   camera.lookAt(0, 1500, 0);
   scene = new THREE.Scene();
   scene.background = texture;
@@ -47,14 +41,15 @@ function init() {
   ];
 
   sphereGeo = new THREE.SphereGeometry(6, 32, 32);
-  sphere = new THREE.Mesh(sphereGeo, materials[2]);
+  rootGeo = new THREE.SphereGeometry(10, 32, 32);
+  sphere = new THREE.Mesh(rootGeo, materials[2]);
   sphere.position.set(0, 0, 0);
   scene.add(sphere);
   label = new Text();
   label.text = "root";
   label.fontSize = 15;
   label.color = 0x00fff3;
-  label.position.set(-15, -5, 0);
+  label.position.set(-15, 32, 0);
   scene.add(label);
 
   drawer(dirStructure["root"], sphere.position, level);
@@ -84,19 +79,6 @@ function init() {
 
 function drawer(x, loc, level) {
   const pointGroup = new THREE.Group();
-  // if (x["children"] === 0) {
-  // label = new Text();
-  // label.text = x["name"];
-  // label.fontSize = 10;
-  // label.color = 0xff0000;
-  // label.position.set(
-  //   Math.random() * 300 - 150,
-  //   Math.random() * 300 - 150,
-  //   Math.random() * 300 - 150
-  // );
-  // pointGroup.add(label);
-  // } else {
-  // let seed = Math.random();
   const color = Math.floor(Math.random() * 0xffffff);
   const vector = new THREE.Vector3();
   for (let i = 0, l = x["children"]; i < l; i++) {
@@ -106,16 +88,15 @@ function drawer(x, loc, level) {
       sphere = new THREE.Mesh(sphereGeo, materials[0]);
     }
     sphere.name = x[i]["name"];
-    console.log(sphere.name);
     label = new Text();
     label.text = x[i]["name"];
-    label.fontSize = 10;
-    label.color = 0xffe628;
-    label.maxWidth = 50;
+    label.fontSize = 6;
+    label.color = 0xffffff;
+    label.maxWidth = 30;
     label.textAlign = "center";
     const points = [];
     points.push(loc);
-    vector.copy(loc).multiplyScalar(1.22);
+    vector.copy(loc).multiplyScalar(1.1);
     if (x["name"] === "root") {
       const phi = Math.acos(-1 + (2 * i) / l);
       const theta = Math.sqrt(l * Math.PI) * phi;
@@ -139,19 +120,23 @@ function drawer(x, loc, level) {
       );
       pointGroup.add(line);
     } else {
-      const cone = new THREE.Group();
       angle = (i / x["children"]) * Math.PI * 2;
+      const cone = new THREE.Group();
+      // angle between loc and origin
+      const angleLoc = Math.atan2(loc.y, loc.x);
+
+      console.log(angleLoc);
       sphere.position.set(
-        vector.x - Math.cos(angle) * (level * 50),
-        vector.y - level * 100,
-        vector.z - Math.sin(angle) * (level * 50)
+        loc.x + Math.cos(angle + 10 * angleLoc) * (level * 50),
+        loc.y + Math.sin(angle + 10 * angleLoc) * (level * 50),
+        loc.z + level * 50
       );
       label.position.set(
-        vector.x - Math.cos(angle) * (level * 50),
-        vector.y - level * 100,
-        vector.z - Math.sin(angle) * (level * 50)
+        loc.x + Math.cos(angle + 10 * angleLoc) * (level * 45),
+        loc.y + Math.sin(angle + 10 * angleLoc) * (level * 45),
+        loc.z + level * 45
       );
-      vector.copy(sphere.position).multiplyScalar(1.2);
+      vector.copy(sphere.position).multiplyScalar(1);
       label.lookAt(vector);
       points.push(
         new THREE.Vector3(
@@ -166,12 +151,11 @@ function drawer(x, loc, level) {
         new THREE.LineBasicMaterial({ color: color })
       );
       cone.add(sphere, line, label);
-
       pointGroup.add(cone);
     }
-    drawer(x[i], sphere.position, level + 1);
-    scene.add(pointGroup);
+    drawer(x[i], sphere.position, level + 0.5);
   }
+  scene.add(pointGroup);
 }
 // }
 
