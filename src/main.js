@@ -1,6 +1,6 @@
 import "../css/style.css"; //import of css styles
-import * as THREE from "https://cdn.skypack.dev/three";
-import { OrbitControls } from "https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 // import of threeJS dependencies using CDN
 import { lineMP } from "../lineMP.mjs";
 // import of mjs module
